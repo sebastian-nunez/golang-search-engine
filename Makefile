@@ -8,4 +8,7 @@ test:
 	@go test -v ./...
 
 coverage:
-	@go test -cover fmt
+	@go test -cover ./...
+
+coverage_ui:
+	go test -coverprofile=c.out ./... && go tool cover -html=c.out
