@@ -7,9 +7,15 @@ templ Login() {
 				<div class="card-body space-y-3">
 					<header>
 						<h1 class="card-title">Login</h1>
-						<p class="text-gray-500">Web crawler access</p>
+						<p class="text-gray-500">Access the web crawlers</p>
 					</header>
-					<form class="space-y-4">
+					<form
+						class="space-y-4"
+						hx-post="/api/v1/login"
+						hx-target="#feedback"
+						hx-indicator="#indicator"
+						hx-disabled-elt="find button[type='submit']"
+					>
 						<label class="input input-bordered flex items-center gap-2">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -21,7 +27,7 @@ templ Login() {
 									d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z"
 								></path>
 							</svg>
-							<input type="text" class="grow" placeholder="Username"/>
+							<input type="email" class="grow" name="email" placeholder="Email"/>
 						</label>
 						<label class="input input-bordered flex items-center gap-2">
 							<svg
@@ -36,9 +42,15 @@ templ Login() {
 									clip-rule="evenodd"
 								></path>
 							</svg>
-							<input type="password" class="grow" placeholder="Password"/>
+							<input type="password" class="grow" name="password" placeholder="Password"/>
 						</label>
 						<button class="btn btn-primary w-full" type="submit">Login</button>
+						<div id="indicator" class="htmx-indicator">
+							<div class="w-full flex justify-center items-center">
+								<span class="loading loading-spinner loading-lg text-primary"></span>
+							</div>
+						</div>
+						<div id="feedback"></div>
 					</form>
 				</div>
 			</section>
