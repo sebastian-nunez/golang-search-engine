@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/sebastian-nunez/golang-search-engine/config"
+	"github.com/sebastian-nunez/golang-search-engine/routes"
 )
 
 func main() {
@@ -30,12 +31,7 @@ func main() {
 	app.Get("/metrics", monitor.New())
 
 	api := app.Group("/api")
-	v1 := api.Group("/v1")
-
-	v1.Get("/", func(c *fiber.Ctx) error {
-		log.Info("Getting data!")
-		return c.SendString("Hello world!")
-	})
+	routes.Register(api)
 
 	go func() {
 		err := app.Listen(":" + config.Envs.Port)
