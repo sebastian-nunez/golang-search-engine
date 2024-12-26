@@ -41,7 +41,7 @@ func Home() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div>My home page!</div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mockup-browser border-base-300 border\"><div class=\"mockup-browser-toolbar\"><div class=\"input border-base-300 border\">https://github.com/sebastian-nunez/golang-search-engine</div></div><div class=\"border-base-300 flex justify-center border-t px-4 py-16\">Hello, world!</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
