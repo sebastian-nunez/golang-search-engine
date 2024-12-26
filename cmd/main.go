@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
@@ -10,7 +12,9 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		IdleTimeout: 10 * time.Second,
+	})
 
 	app.Use(logger.New())
 	app.Use(healthcheck.New(healthcheck.Config{
