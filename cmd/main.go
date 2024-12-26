@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/sebastian-nunez/golang-search-engine/config"
+)
 
 func main() {
-	fmt.Println("Hello world!")
+	port := ":" + config.Envs.Port
+	fmt.Println("Port -> " + port)
 }
