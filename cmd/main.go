@@ -13,7 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/sebastian-nunez/golang-search-engine/config"
-	"github.com/sebastian-nunez/golang-search-engine/routes"
+	"github.com/sebastian-nunez/golang-search-engine/router"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 	}))
 	app.Get("/metrics", monitor.New())
 
-	routes.Register(app)
+	router.SetupRoutes(app)
 
 	go func() {
 		err := app.Listen(":" + config.Envs.Port)

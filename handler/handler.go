@@ -1,4 +1,4 @@
-package routes
+package handler
 
 import (
 	"github.com/a-h/templ"
@@ -6,19 +6,14 @@ import (
 	"github.com/sebastian-nunez/golang-search-engine/views"
 )
 
-func Register(app *fiber.App) {
-	api := app.Group("/api")
-	v1 := api.Group("/v1")
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		return render(c, views.Home())
+func GetHelloWorld(c *fiber.Ctx) error {
+	return c.JSON(fiber.Map{
+		"message": "Hello, world!",
 	})
+}
 
-	v1.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"message": "Hello, world!",
-		})
-	})
+func RenderHomePage(c *fiber.Ctx) error {
+	return render(c, views.Home())
 }
 
 func render(c *fiber.Ctx, component templ.Component) error {
