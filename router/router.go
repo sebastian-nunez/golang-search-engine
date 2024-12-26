@@ -14,4 +14,5 @@ func SetupRoutes(app *fiber.App) {
 
 	v1.Get("/", handler.GetHelloWorld)
 	v1.Post("/login", handler.PostLogin)
+	v1.Post("/settings", handler.PostSettings)
 }
