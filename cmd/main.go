@@ -30,8 +30,7 @@ func main() {
 	}))
 	app.Get("/metrics", monitor.New())
 
-	api := app.Group("/api")
-	routes.Register(api)
+	routes.Register(app)
 
 	go func() {
 		err := app.Listen(":" + config.Envs.Port)
