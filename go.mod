@@ -8,6 +8,12 @@ require (
 )
 
 require (
+	github.com/PuerkitoBio/goquery v1.10.0 // indirect
+	github.com/andybalholm/cascadia v1.3.2 // indirect
+	golang.org/x/net v0.29.0 // indirect
+)
+
+require (
 	github.com/a-h/templ v0.2.793
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/google/uuid v1.5.0 // indirect
@@ -19,5 +25,5 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 )
