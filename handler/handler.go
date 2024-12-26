@@ -16,6 +16,10 @@ func RenderHomePage(c *fiber.Ctx) error {
 	return render(c, views.Home())
 }
 
+func RenderLoginPage(c *fiber.Ctx) error {
+	return render(c, views.Login())
+}
+
 func render(c *fiber.Ctx, component templ.Component) error {
 	c.Set("Content-Type", "text/html")
 	return component.Render(c.Context(), c.Response().BodyWriter())

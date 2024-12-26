@@ -10,6 +10,7 @@ func SetupRoutes(app *fiber.App) {
 	v1 := api.Group("/v1")
 
 	app.Get("/", handler.RenderHomePage)
+	app.Get("/login", handler.RenderLoginPage)
 
 	v1.Get("/", handler.GetHelloWorld)
 }
