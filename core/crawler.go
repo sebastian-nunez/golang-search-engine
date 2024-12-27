@@ -18,7 +18,7 @@ type CrawlData struct {
 	URL          string
 	Success      bool
 	ResponseCode int
-	Body         ParsedBody
+	ParsedBody   ParsedBody
 }
 
 type ParsedBody struct {
@@ -42,29 +42,29 @@ func runCrawl(inputUrl string) CrawlData {
 	baseURL, _ := url.Parse(inputUrl)
 	if err != nil || res == nil {
 		log.Infof("Something went wrong while crawling '%s': %s", inputUrl, err)
-		return CrawlData{URL: inputUrl, Success: false, ResponseCode: 0, Body: ParsedBody{}}
+		return CrawlData{URL: inputUrl, Success: false, ResponseCode: 0, ParsedBody: ParsedBody{}}
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
 		log.Infof("Received HTTP status code '%d' while crawling '%s'", res.StatusCode, inputUrl)
-		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, Body: ParsedBody{}}
+		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, ParsedBody: ParsedBody{}}
 	}
 
 	contentType := res.Header.Get(fiber.HeaderContentType)
 	if !strings.HasPrefix(contentType, utils.ContentTypeHTML) {
 		log.Infof("Received content type of '%s' and expected HTML while crawling '%s'", contentType, inputUrl)
 		// Success is set to false since it could be a temporary issue and we can still retry in the future.
-		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, Body: ParsedBody{}}
+		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, ParsedBody: ParsedBody{}}
 	}
 
 	data, err := parseBody(res.Body, baseURL)
 	if err != nil {
 		log.Infof("Something went wrong getting data from html body for URL '%s': %s", inputUrl, err)
-		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, Body: ParsedBody{}}
+		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, ParsedBody: ParsedBody{}}
 	}
 
-	return CrawlData{URL: inputUrl, Success: true, ResponseCode: res.StatusCode, Body: data}
+	return CrawlData{URL: inputUrl, Success: true, ResponseCode: res.StatusCode, ParsedBody: data}
 }
 
 func parseBody(body io.ReadCloser, baseURL *url.URL) (ParsedBody, error) {
