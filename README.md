@@ -7,6 +7,8 @@ A prototype search engine with a web crawler and full text search through UI and
 - [Core features (MVP)](#core-features-mvp)
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
+  - [Running locally](#running-locally)
+  - [Credentials](#credentials)
 
 ## Core features (MVP)
 
@@ -27,7 +29,18 @@ A prototype search engine with a web crawler and full text search through UI and
 
 ## Getting started
 
+### Running locally
+
 1. Clone the repo: `git clone https://github.com/sebastian-nunez/golang-search-engine`
 2. Install `Go` 1.23 or greater
-3. Install `Air` : `go install github.com/air-verse/air@latest`
-4. Run the app: `air`
+3. Install `Docker Compose`
+4. Install `Air` : `go install github.com/air-verse/air@latest`
+5. Run docker compose: `docker compose up`
+6. Run the app: `air`
+
+### Credentials
+
+For testing purposes, some dummy admin credentials are inserted into the database:
+
+- **Email:** `jdoe@google.com`
+- **Password:** `password`
