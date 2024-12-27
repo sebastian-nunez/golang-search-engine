@@ -11,9 +11,9 @@ import (
 	"github.com/sebastian-nunez/golang-search-engine/views"
 )
 
-func GetHelloWorld(c *fiber.Ctx) error {
+func GetPing(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
-		"message": "Hello, world!",
+		"message": "pong",
 	})
 }
 

@@ -15,7 +15,7 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/login", handler.RenderLoginPage)
 	app.Post("/logout", handler.PostLogout)
 
-	v1.Get("/", handler.GetHelloWorld)
+	v1.Get("/ping", handler.GetPing)
 	v1.Post("/login", handler.PostAdminLogin)
 	v1.Post("/settings", middleware.WithAuth, handler.PostSettings)
 
