@@ -13,7 +13,9 @@ var DBConn *gorm.DB
 
 func InitDB() {
 	dbURL := config.Envs.DatabaseURL
-	DBConn, err := gorm.Open(postgres.Open(dbURL))
+	var err error
+
+	DBConn, err = gorm.Open(postgres.Open(dbURL))
 	if err != nil {
 		msg := fmt.Sprintf("Failed to init database connection: %s", err)
 		log.Info(msg)
@@ -27,7 +29,7 @@ func InitDB() {
 		panic(err)
 	}
 
-	err = DBConn.AutoMigrate()
+	err = DBConn.AutoMigrate(&User{})
 	if err != nil {
 		msg := fmt.Sprintf("Unable to create database migrations: %s", err)
 		log.Info(msg)
