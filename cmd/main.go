@@ -15,6 +15,7 @@ import (
 	"github.com/sebastian-nunez/golang-search-engine/config"
 	"github.com/sebastian-nunez/golang-search-engine/database"
 	"github.com/sebastian-nunez/golang-search-engine/router"
+	"github.com/sebastian-nunez/golang-search-engine/utils"
 )
 
 func main() {
@@ -33,6 +34,7 @@ func main() {
 
 	database.InitDB() // Must be set before calling SetupRoutes
 	router.SetupRoutes(app)
+	utils.StartCronJobs()
 
 	go func() {
 		err := app.Listen(":" + config.Envs.Port)
