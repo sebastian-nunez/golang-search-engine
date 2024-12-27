@@ -10,7 +10,7 @@ templ Home(urlsPerHour string, searchOn bool, addNewURLs bool) {
 							<h1 class="card-title">Search settings</h1>
 							<p class="text-gray-500">Configure the web crawlers</p>
 						</div>
-						<button hx-post="/logout" class="btn btn-outline btn-error">Logout</button>
+						<button hx-post="/logout" class="btn btn-outline btn-error" data-testid="logoutBtn">Logout</button>
 					</header>
 					<form
 						class="space-y-4"

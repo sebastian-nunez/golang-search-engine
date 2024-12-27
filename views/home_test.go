@@ -11,7 +11,7 @@ import (
 func TestHomeView(t *testing.T) {
 	r, w := io.Pipe()
 	go func() {
-		_ = Login().Render(context.Background(), w)
+		_ = Home("12", true, false).Render(context.Background(), w)
 		_ = w.Close()
 	}()
 
@@ -23,8 +23,10 @@ func TestHomeView(t *testing.T) {
 	if doc.Find(`form`).Length() == 0 {
 		t.Error("expected form content to be rendered but was not")
 	}
-
 	if doc.Find(`header`).Length() == 0 {
 		t.Error("expected header content to be rendered but was not")
+	}
+	if doc.Find(`[data-testid="logoutBtn"]`).Length() == 0 {
+		t.Error("expected logout button to be rendered but was not")
 	}
 }
