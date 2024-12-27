@@ -7,7 +7,9 @@ import (
 )
 
 type Config struct {
-	Port string
+	Port        string
+	DatabaseURL string
+	SecretKey   string
 }
 
 // Envs is the global configuration for the application.
@@ -20,7 +22,9 @@ func initConfig() Config {
 	}
 
 	return Config{
-		Port: getEnv("PORT", "8080"),
+		Port:        getEnv("PORT", "8080"),
+		DatabaseURL: getEnv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/search"),
+		SecretKey:   getEnv("SECRET_KEY", "REPLACE_ME"),
 	}
 }
 
