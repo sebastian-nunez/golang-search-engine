@@ -6,11 +6,11 @@ import (
 )
 
 type SearchSettings struct {
-	ID          uint      `gorm:"primarykey" json:"id"`
+	ID          uint      `gorm:"primaryKey" json:"id"`
 	URLsPerHour uint      `json:"urlsPerHour"`
 	SearchOn    bool      `json:"searchOn"`
 	AddNewURLs  bool      `json:"addNewUrls"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updatedAt"`
 }
 
 func (s *SearchSettings) Get() error {
