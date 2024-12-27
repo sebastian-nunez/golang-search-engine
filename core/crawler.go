@@ -90,17 +90,45 @@ func parseBody(body io.ReadCloser, baseURL *url.URL) (ParsedBody, error) {
 	}, nil
 }
 
-func getLinks(doc *html.Node, baseURL *url.URL) Links {
+func getLinks(node *html.Node, baseURL *url.URL) Links {
 	// TODO: fill in
 	return Links{}
 }
 
-func getPageData(doc *html.Node) (title string, description string) {
+// Returns (title, description)
+func getPageData(node *html.Node) (string, string) {
 	// TODO: fill in
-	return title, description
+	return "", ""
 }
 
-func getPageHeadings(doc *html.Node) (headings string) {
-	// TODO: fill in
-	return headings
+func getPageHeadings(node *html.Node) string {
+	if node == nil {
+		return ""
+	}
+
+	var headings strings.Builder
+	// Recursively explores the HTML tree looking for <h1> tags
+	var findH1 func(*html.Node)
+
+	findH1 = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "h1" {
+			// Assume the h1 tag will have the text content as its first child
+			if n.FirstChild != nil {
+				innerText := n.FirstChild.Data
+
+				headings.WriteString(innerText)
+				headings.WriteString(", ")
+			}
+		}
+
+		child := n.FirstChild
+		for child != nil {
+			findH1(child)
+			child = child.NextSibling
+		}
+	}
+
+	findH1(node)
+	// Remove the last comma and space from the concatenated string
+	return strings.TrimPrefix(headings.String(), ", ")
 }
