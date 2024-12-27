@@ -75,7 +75,7 @@ func parseBody(body io.ReadCloser, baseURL *url.URL) (ParsedBody, error) {
 
 	start := time.Now()
 
-	title, desc := getPageData(doc)
+	title, desc := getPageMetadata(doc)
 	headings := getPageHeadings(doc)
 	links := getLinks(doc, baseURL)
 
@@ -96,9 +96,46 @@ func getLinks(node *html.Node, baseURL *url.URL) Links {
 }
 
 // Returns (title, description)
-func getPageData(node *html.Node) (string, string) {
-	// TODO: fill in
-	return "", ""
+func getPageMetadata(node *html.Node) (string, string) {
+	if node == nil {
+		return "", ""
+	}
+
+	title := ""
+	description := ""
+	// Recursively searching for `meta` tags in the HTML tree and extracts their `name` and `content` attributes.
+	var findMetadata func(*html.Node)
+
+	findMetadata = func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			if n.Data == "title" && n.FirstChild != nil {
+				title = n.FirstChild.Data
+			} else if n.Data == "meta" {
+				var attrName, attrContent string
+
+				for _, attr := range n.Attr {
+					if attr.Key == "name" {
+						attrName = attr.Val
+					} else if attr.Key == "content" {
+						attrContent = attr.Val
+					}
+				}
+
+				if attrName == "description" {
+					description = attrContent
+				}
+			}
+		}
+
+		child := n.FirstChild
+		for child != nil {
+			findMetadata(child)
+			child = child.NextSibling
+		}
+	}
+
+	findMetadata(node)
+	return title, description
 }
 
 func getPageHeadings(node *html.Node) string {

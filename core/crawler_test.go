@@ -16,7 +16,28 @@ func TestGetLinks(t *testing.T) {
 }
 
 func TestGetPageData(t *testing.T) {
-	// TODO: fill in
+	doc, _ := html.Parse(strings.NewReader(`
+		<html>
+      <head>
+				<title>Some title</title>
+				<meta name="description" content="Some page description">
+			</head>
+			<body>
+				<h1>Primary heading</h1>
+			</body>
+		</html>
+	`))
+	wantTitle := "Some title"
+	wantDesc := "Some page description"
+
+	gotTitle, gotDesc := getPageMetadata(doc)
+
+	if gotTitle != wantTitle {
+		t.Errorf("getPageMetadata want title %s but got %s", wantTitle, gotTitle)
+	}
+	if gotDesc != wantDesc {
+		t.Errorf("getPageMetadata want description %s but got %s", wantDesc, gotDesc)
+	}
 }
 
 func TestGetPageHeadings(t *testing.T) {
