@@ -16,10 +16,7 @@ type Config struct {
 var Envs = initConfig()
 
 func initConfig() Config {
-	err := godotenv.Load()
-	if err != nil {
-		panic("Unable to locate environment variables")
-	}
+	godotenv.Load()
 
 	return Config{
 		Port:        getEnv("PORT", "8080"),

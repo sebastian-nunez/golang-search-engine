@@ -130,5 +130,5 @@ func getPageHeadings(node *html.Node) string {
 
 	findH1(node)
 	// Remove the last comma and space from the concatenated string
-	return strings.TrimPrefix(headings.String(), ", ")
+	return strings.TrimSuffix(headings.String(), ", ")
 }
