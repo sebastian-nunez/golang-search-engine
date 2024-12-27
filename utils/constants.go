@@ -1,3 +1,6 @@
 package utils
 
-var AdminCookie = "admin"
+var (
+	AdminCookie     = "admin"
+	ContentTypeHTML = "text/html"
+)
