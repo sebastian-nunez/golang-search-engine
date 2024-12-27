@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/sebastian-nunez/golang-search-engine/database"
+	"github.com/sebastian-nunez/golang-search-engine/db"
 	"github.com/sebastian-nunez/golang-search-engine/handler"
 	"github.com/sebastian-nunez/golang-search-engine/middleware"
 )
@@ -22,7 +22,7 @@ func SetupRoutes(app *fiber.App) {
 	// DEBUG ONLY
 	// TODO: For testing, always create a set of basic credentials. Remove for a production app.
 	v1.Get("/create-admin", func(c *fiber.Ctx) error {
-		u := &database.User{}
+		u := &db.User{}
 		err := u.CreateAdmin("jdoe@google.com", "password")
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)

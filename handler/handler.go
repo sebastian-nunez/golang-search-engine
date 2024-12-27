@@ -6,7 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/sebastian-nunez/golang-search-engine/database"
+	"github.com/sebastian-nunez/golang-search-engine/db"
 	"github.com/sebastian-nunez/golang-search-engine/utils"
 	"github.com/sebastian-nunez/golang-search-engine/views"
 )
@@ -31,7 +31,7 @@ func PostAdminLogin(c *fiber.Ctx) error {
 		return htmlError(c, "invalid login credentials")
 	}
 
-	user := &database.User{}
+	user := &db.User{}
 	user, err := user.LoginAsAdmin(input.Email, input.Password)
 	if err != nil {
 		log.Info(err)
@@ -71,7 +71,7 @@ func PostSettings(c *fiber.Ctx) error {
 		return htmlError(c, "unable to parse search settings")
 	}
 
-	settings := &database.SearchSettings{
+	settings := &db.SearchSettings{
 		URLsPerHour: uint(input.URLsPerHour),
 		SearchOn:    input.SearchOn,
 		AddNewURLs:  input.AddNewURLs,
@@ -87,7 +87,7 @@ func PostSettings(c *fiber.Ctx) error {
 }
 
 func RenderHomePage(c *fiber.Ctx) error {
-	settings := &database.SearchSettings{}
+	settings := &db.SearchSettings{}
 	err := settings.Get()
 	if err != nil {
 		err := settings.CreateDefault()
