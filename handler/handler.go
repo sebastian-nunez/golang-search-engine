@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -57,24 +58,47 @@ func PostAdminLogin(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func GetLogout(c *fiber.Ctx) error {
+func PostLogout(c *fiber.Ctx) error {
 	c.ClearCookie(utils.AdminCookie)
 	c.Append("HX-Redirect", "/login")
 	return c.SendStatus(fiber.StatusOK)
 }
 
 func PostSettings(c *fiber.Ctx) error {
-	settings := settingsForm{}
-	if err := c.BodyParser(&settings); err != nil {
+	input := settingsForm{}
+	if err := c.BodyParser(&input); err != nil {
 		log.Info(err)
 		return htmlError(c, "unable to parse search settings")
 	}
 
-	return c.SendStatus(fiber.StatusOK)
+	settings := &database.SearchSettings{
+		URLsPerHour: uint(input.URLsPerHour),
+		SearchOn:    input.SearchOn,
+		AddNewURLs:  input.AddNewURLs,
+	}
+	err := settings.Update()
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return htmlError(c, "unable to update search settings")
+	}
+
+	// c.Append("HX-Refresh", "true")
+	return c.SendString("Settings were saved.")
 }
 
 func RenderHomePage(c *fiber.Ctx) error {
-	return render(c, views.Home())
+	settings := &database.SearchSettings{}
+	err := settings.Get()
+	if err != nil {
+		err := settings.CreateDefault()
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return htmlError(c, "unable to create default search settings")
+		}
+	}
+
+	urlsPerHour := strconv.FormatUint(uint64(settings.URLsPerHour), 10)
+	return render(c, views.Home(urlsPerHour, settings.SearchOn, settings.AddNewURLs))
 }
 
 func RenderLoginPage(c *fiber.Ctx) error {
