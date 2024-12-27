@@ -52,4 +52,5 @@ func main() {
 	}
 
 	log.Info("Server shut down successfully.")
+	os.Exit(0)
 }
