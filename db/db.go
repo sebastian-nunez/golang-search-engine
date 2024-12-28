@@ -26,14 +26,14 @@ func InitDB() {
 	if err != nil {
 		msg := fmt.Sprintf("Unable to install UUID extension in the database: %s", err)
 		log.Info(msg)
-		panic(err)
+		panic(msg)
 	}
 
 	err = DBConn.AutoMigrate(&User{}, &SearchSettings{}, &CrawledURL{})
 	if err != nil {
 		msg := fmt.Sprintf("Unable to create database migrations: %s", err)
 		log.Info(msg)
-		panic(err)
+		panic(msg)
 	}
 }
 
