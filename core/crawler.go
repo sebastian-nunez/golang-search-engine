@@ -67,7 +67,7 @@ func runCrawl(inputUrl string) CrawlData {
 	return CrawlData{URL: inputUrl, Success: true, ResponseCode: res.StatusCode, ParsedBody: data}
 }
 
-func parseBody(body io.ReadCloser, baseURL *url.URL) (ParsedBody, error) {
+func parseBody(body io.Reader, baseURL *url.URL) (ParsedBody, error) {
 	doc, err := html.Parse(body)
 	if err != nil {
 		return ParsedBody{}, fmt.Errorf("unable to parse response body: %s", err)
