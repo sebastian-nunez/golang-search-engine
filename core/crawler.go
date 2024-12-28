@@ -91,8 +91,62 @@ func parseBody(body io.ReadCloser, baseURL *url.URL) (ParsedBody, error) {
 }
 
 func getLinks(node *html.Node, baseURL *url.URL) Links {
-	// TODO: fill in
-	return Links{}
+	links := Links{}
+	if node == nil {
+		return links
+	}
+
+	var findLinks func(*html.Node)
+	findLinks = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			for _, attr := range n.Attr {
+				if attr.Key == "href" {
+					url, err := url.Parse(attr.Val)
+					if err != nil {
+						continue
+					}
+					urlStr := url.String()
+
+					// Check if urlStr is a:
+					//  1) Hashtag/anchor
+					//  2) Mail link
+					//  3) Telephone link
+					//  4) JavaScript link
+					//  5) PDF or MD file
+					if strings.HasPrefix(urlStr, "#") || strings.HasPrefix(urlStr, "mail") || strings.HasPrefix(urlStr, "tel") ||
+						strings.HasPrefix(urlStr, "javascript") || strings.HasSuffix(urlStr, ".pdf") || strings.HasSuffix(urlStr, ".md") {
+						continue
+					}
+
+					if url.IsAbs() { // "valid", full URL (could be internal or external)
+						if utils.IsSameHost(url.String(), baseURL.String()) {
+							links.Internal = append(links.Internal, url.String())
+						} else {
+							links.External = append(links.External, url.String())
+						}
+					} else { // treat as internal URL
+						// ResolveReference will help construct a full, absolute URL:
+						// baseURL: https://www.example.com
+						// url: /about
+						// -> rel: https://www.example.com/about
+						rel := baseURL.ResolveReference(url)
+						links.Internal = append(links.Internal, rel.String())
+					}
+
+					break
+				}
+			}
+		}
+
+		child := n.FirstChild
+		for child != nil {
+			findLinks(child)
+			child = child.NextSibling
+		}
+	}
+
+	findLinks(node)
+	return links
 }
 
 // Returns (title, description)
