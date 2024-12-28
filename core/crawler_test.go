@@ -15,7 +15,7 @@ func TestGetLinks(t *testing.T) {
 	// TODO: fill in
 }
 
-func TestGetPageData(t *testing.T) {
+func TestGetPageMetadata(t *testing.T) {
 	doc, _ := html.Parse(strings.NewReader(`
 		<html>
       <head>
