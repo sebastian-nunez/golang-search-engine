@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/joho/godotenv"
 )
 
@@ -16,7 +17,12 @@ type Config struct {
 var Envs = initConfig()
 
 func initConfig() Config {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		// Causing a `panic` is making the tests fail for some reason. I should probably look into it,
+		// but it is not that important for now :)
+		log.Errorf("Unable to load .env config: %s", err)
+	}
 
 	return Config{
 		Port:        getEnv("PORT", "8080"),
