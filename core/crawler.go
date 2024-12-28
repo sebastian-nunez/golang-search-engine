@@ -39,7 +39,7 @@ type Links struct {
 
 func runCrawl(inputUrl string) CrawlData {
 	res, err := http.Get(inputUrl)
-	baseURL, _ := url.Parse(inputUrl)
+	baseURL, _ := url.Parse(inputUrl) // Ignoring error since GET request will fail given invalid input URL
 	if err != nil || res == nil {
 		log.Infof("Something went wrong while crawling '%s': %s", inputUrl, err)
 		return CrawlData{URL: inputUrl, Success: false, ResponseCode: 0, ParsedBody: ParsedBody{}}
