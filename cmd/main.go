@@ -13,9 +13,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/sebastian-nunez/golang-search-engine/config"
+	"github.com/sebastian-nunez/golang-search-engine/core"
 	"github.com/sebastian-nunez/golang-search-engine/db"
 	"github.com/sebastian-nunez/golang-search-engine/router"
-	"github.com/sebastian-nunez/golang-search-engine/utils"
 )
 
 func main() {
@@ -34,7 +34,7 @@ func main() {
 
 	db.InitDB() // Must be set before calling SetupRoutes
 	router.SetupRoutes(app)
-	utils.StartCronJobs()
+	core.StartCrawlerCronJobs()
 
 	go func() {
 		err := app.Listen(":" + config.Envs.Port)
