@@ -203,7 +203,8 @@ func getPageHeadings(node *html.Node) string {
 
 	findH1 = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "h1" {
-			// Assume the h1 tag will have the text content as its first child
+			// Assume the <h1> tag will have the text content as its first child. Turns out, this is not always the case.
+			// Some websites will have <span> tags which are not being processed right now.
 			if n.FirstChild != nil {
 				innerText := n.FirstChild.Data
 
