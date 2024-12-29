@@ -32,7 +32,7 @@ func InitDB() {
 		panic(msg)
 	}
 
-	err = DBConn.AutoMigrate(&User{}, &SearchSettings{}, &CrawledURL{})
+	err = DBConn.AutoMigrate(&User{}, &SearchSettings{}, &CrawledURL{}, &SearchIndex{})
 	if err != nil {
 		msg := fmt.Sprintf("Unable to create database migrations: %s", err)
 		log.Info(msg)
