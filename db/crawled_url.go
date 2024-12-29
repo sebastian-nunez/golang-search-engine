@@ -10,7 +10,7 @@ import (
 type CrawledURL struct {
 	ID              string         `gorm:"primaryKey;type:uuid;default:uuid_generate_v4()" json:"id"`
 	URL             string         `gorm:"unique;not null" json:"url"`
-	Success         bool           `gorm:"not null" json:"success"`
+	Success         bool           `gorm:"default:false;not null" json:"success"`
 	CrawlDuration   time.Duration  `json:"crawlDuration"`
 	ResponseCode    int            `gorm:"type:smallint" json:"responseCode"`
 	PageTitle       string         `json:"pageTitle"`
@@ -48,7 +48,6 @@ func (url *CrawledURL) GetNextCrawlURLs(limit int) ([]CrawledURL, error) {
 func (url *CrawledURL) Save() error {
 	tx := DBConn.Save(&url)
 	if tx.Error != nil {
-		log.Info(tx.Error)
 		return tx.Error
 	}
 
