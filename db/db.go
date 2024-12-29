@@ -7,6 +7,7 @@ import (
 	"github.com/sebastian-nunez/golang-search-engine/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DBConn *gorm.DB
@@ -15,7 +16,9 @@ func InitDB() {
 	dbURL := config.Envs.DatabaseURL
 	var err error
 
-	DBConn, err = gorm.Open(postgres.Open(dbURL))
+	DBConn, err = gorm.Open(postgres.Open(dbURL), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		msg := fmt.Sprintf("Failed to init database connection: %s", err)
 		log.Info(msg)
