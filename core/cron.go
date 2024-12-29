@@ -13,5 +13,5 @@ func StartCrawlerCronJobs() {
 	c.Start()
 
 	cronCount := len(c.Entries())
-	log.Infof("Finished setting up %d cron jobs", cronCount)
+	log.Infof("Successfully set up %d cron jobs", cronCount)
 }

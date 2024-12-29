@@ -26,11 +26,11 @@ func RunEngine() {
 	crawl := &db.CrawledURL{}
 	nextURLs, err := crawl.GetNextCrawlURLs(int(settings.URLsPerHour))
 	if err != nil {
-		log.Info("Unable to get next crawl URLs with '%d' URLs per hour: %s", settings.URLsPerHour, err)
+		log.Infof("Unable to get next crawl URLs from the database: %s", err)
 		return
 	}
 
-	newURLs := []db.CrawledURL{}
+	newURLs := make(map[string]struct{})
 	lastTested := time.Now()
 	for _, curURL := range nextURLs {
 		result := RunCrawl(curURL.URL)
@@ -72,7 +72,7 @@ func RunEngine() {
 		// Only external URLs will be added to the database. However, we could also run the internal
 		// links/URLs as well: this is out of scope for now.
 		for _, newURL := range result.ParsedBody.Links.External {
-			newURLs = append(newURLs, db.CrawledURL{URL: newURL})
+			newURLs[newURL] = struct{}{}
 		}
 	} // End of range
 
@@ -82,16 +82,19 @@ func RunEngine() {
 	}
 
 	added := 0
-	for _, newURL := range newURLs {
+	for u := range newURLs {
+		newURL := db.CrawledURL{URL: u}
+
 		err := newURL.Save()
 		if err != nil {
-			log.Info("Unable to save new URL '%s' to the database: %s", newURL, err)
+			log.Infof("Unable to save new URL '%s' to the database", newURL.URL)
 		} else {
 			added += 1
 		}
 	}
 
-	log.Infof("Added %d new URLs to the database", added)
+	// TODO: make this into a table.
+	log.Infof("Crawled through %d URLs. Found a total of %d new URLs. Added %d new URLs to the database", len(nextURLs), len(newURLs), added)
 }
 
 func RunIndex() {
