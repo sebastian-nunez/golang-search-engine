@@ -9,8 +9,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-func TestParseBody(t *testing.T) {
-	doc := strings.NewReader(`
+func TestParsePageBody(t *testing.T) {
+	body := strings.NewReader(`
 		<html>
 			<head>
 				<title>Page title 1</title>
@@ -32,16 +32,16 @@ func TestParseBody(t *testing.T) {
 	wantInternalLinks := []string{"https://internal.com", "https://internal.com/path"}
 	wantExternalLinks := []string{"https://external.com"}
 
-	got, err := parseBody(doc, baseURL)
+	got, err := parsePageBody(body, baseURL)
 
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
-	if got.PageTitle != wantTitle {
-		t.Errorf("Expected page title '%s', but got '%s'", wantTitle, got.PageTitle)
+	if got.Title != wantTitle {
+		t.Errorf("Expected page title '%s', but got '%s'", wantTitle, got.Title)
 	}
-	if got.PageDescription != wantDesc {
-		t.Errorf("Expected page description '%s', but got '%s'", wantDesc, got.PageDescription)
+	if got.Description != wantDesc {
+		t.Errorf("Expected page description '%s', but got '%s'", wantDesc, got.Description)
 	}
 	if got.Headings != wantHeadings {
 		t.Errorf("Expected headings '%s', but got '%s'", wantHeadings, got.Headings)
@@ -54,8 +54,8 @@ func TestParseBody(t *testing.T) {
 	}
 }
 
-func TestGetLinks(t *testing.T) {
-	doc, _ := html.Parse(strings.NewReader(`
+func TestGetPageLinks(t *testing.T) {
+	bodyNode, _ := html.Parse(strings.NewReader(`
 		<html>
 			<body>
 				<a href="https://internal.com">Internal link</a>
@@ -76,7 +76,7 @@ func TestGetLinks(t *testing.T) {
 	wantInternal := []string{"https://internal.com", "https://internal.com/path", "https://internal.com/about"}
 	wantExternal := []string{"https://external.com", "https://app.internal.com"}
 
-	got := getLinks(doc, baseURL)
+	got := getPageLinks(bodyNode, baseURL)
 
 	if !utils.EqualSlices(wantInternal, got.Internal) {
 		t.Errorf("want internal links %v, but got %v", wantInternal, got.Internal)
@@ -87,7 +87,7 @@ func TestGetLinks(t *testing.T) {
 }
 
 func TestGetPageMetadata(t *testing.T) {
-	doc, _ := html.Parse(strings.NewReader(`
+	bodyNode, _ := html.Parse(strings.NewReader(`
 		<html>
       <head>
 				<title>Some title</title>
@@ -101,7 +101,7 @@ func TestGetPageMetadata(t *testing.T) {
 	wantTitle := "Some title"
 	wantDesc := "Some page description"
 
-	gotTitle, gotDesc := getPageMetadata(doc)
+	gotTitle, gotDesc := getPageMetadata(bodyNode)
 
 	if gotTitle != wantTitle {
 		t.Errorf("getPageMetadata want title %s but got %s", wantTitle, gotTitle)
@@ -112,7 +112,7 @@ func TestGetPageMetadata(t *testing.T) {
 }
 
 func TestGetPageHeadings(t *testing.T) {
-	doc, _ := html.Parse(strings.NewReader(`
+	bodyNode, _ := html.Parse(strings.NewReader(`
 		<html>
 			<body>
 				<h1>Primary heading</h1>
@@ -126,7 +126,7 @@ func TestGetPageHeadings(t *testing.T) {
 	`))
 	want := "Primary heading, Secondary heading"
 
-	got := getPageHeadings(doc)
+	got := getPageHeadings(bodyNode)
 
 	if got != want {
 		t.Errorf("getPageHeadings want %s but got %s", want, got)

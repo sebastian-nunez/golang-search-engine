@@ -14,20 +14,20 @@ import (
 	"golang.org/x/net/html"
 )
 
-type CrawlData struct {
-	URL          string
-	Success      bool
-	ResponseCode int
-	ParsedBody   ParsedBody
+type CrawlMetadata struct {
+	URL        string
+	Success    bool
+	StatusCode int
+	ParsedPage ParsedPage
 }
 
-type ParsedBody struct {
-	CrawlTime time.Duration
+type ParsedPage struct {
 	// Concatenated string of all <h1> tags
-	PageTitle       string
-	PageDescription string
-	Headings        string
-	Links           Links
+	Title       string
+	Description string
+	Headings    string
+	Links       Links
+	CrawlTime   time.Duration
 }
 
 type Links struct {
@@ -37,60 +37,60 @@ type Links struct {
 	External []string
 }
 
-func RunCrawl(inputUrl string) CrawlData {
+func RunCrawl(inputUrl string) CrawlMetadata {
 	res, err := http.Get(inputUrl)
 	baseURL, _ := url.Parse(inputUrl) // Ignoring error since GET request will fail given invalid input URL
 	if err != nil || res == nil {
 		log.Infof("Something went wrong while crawling '%s': %s", inputUrl, err)
-		return CrawlData{URL: inputUrl, Success: false, ResponseCode: 0, ParsedBody: ParsedBody{}}
+		return CrawlMetadata{URL: inputUrl, Success: false, StatusCode: 0, ParsedPage: ParsedPage{}}
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
 		log.Infof("Received HTTP status code '%d' while crawling '%s'", res.StatusCode, inputUrl)
-		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, ParsedBody: ParsedBody{}}
+		return CrawlMetadata{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
 	}
 
 	contentType := res.Header.Get(fiber.HeaderContentType)
 	if !strings.HasPrefix(contentType, utils.ContentTypeHTML) {
 		log.Infof("Received content type of '%s' and expected HTML while crawling '%s'", contentType, inputUrl)
 		// Success is set to false since it could be a temporary issue and we can still retry in the future.
-		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, ParsedBody: ParsedBody{}}
+		return CrawlMetadata{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
 	}
 
-	data, err := parseBody(res.Body, baseURL)
+	data, err := parsePageBody(res.Body, baseURL)
 	if err != nil {
 		log.Infof("Something went wrong getting data from html body for URL '%s': %s", inputUrl, err)
-		return CrawlData{URL: inputUrl, Success: false, ResponseCode: res.StatusCode, ParsedBody: ParsedBody{}}
+		return CrawlMetadata{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
 	}
 
-	return CrawlData{URL: inputUrl, Success: true, ResponseCode: res.StatusCode, ParsedBody: data}
+	return CrawlMetadata{URL: inputUrl, Success: true, StatusCode: res.StatusCode, ParsedPage: data}
 }
 
-func parseBody(body io.Reader, baseURL *url.URL) (ParsedBody, error) {
+func parsePageBody(body io.Reader, baseURL *url.URL) (ParsedPage, error) {
 	doc, err := html.Parse(body)
 	if err != nil {
-		return ParsedBody{}, fmt.Errorf("unable to parse response body: %s", err)
+		return ParsedPage{}, fmt.Errorf("unable to parse response body: %s", err)
 	}
 
 	start := time.Now()
 
 	title, desc := getPageMetadata(doc)
 	headings := getPageHeadings(doc)
-	links := getLinks(doc, baseURL)
+	links := getPageLinks(doc, baseURL)
 
 	end := time.Now()
 
-	return ParsedBody{
-		CrawlTime:       end.Sub(start),
-		PageTitle:       title,
-		PageDescription: desc,
-		Headings:        headings,
-		Links:           links,
+	return ParsedPage{
+		CrawlTime:   end.Sub(start),
+		Title:       title,
+		Description: desc,
+		Headings:    headings,
+		Links:       links,
 	}, nil
 }
 
-func getLinks(node *html.Node, baseURL *url.URL) Links {
+func getPageLinks(node *html.Node, baseURL *url.URL) Links {
 	links := Links{}
 	if node == nil {
 		return links

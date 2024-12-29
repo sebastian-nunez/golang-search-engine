@@ -23,56 +23,56 @@ func RunEngine() {
 		return
 	}
 
-	crawl := &db.CrawledURL{}
-	nextURLs, err := crawl.GetNextCrawlURLs(int(settings.URLsPerHour))
+	cp := &db.CrawledPage{}
+	nextPages, err := cp.GetNextCrawlPages(int(settings.URLsPerHour))
 	if err != nil {
-		log.Infof("Unable to get next crawl URLs from the database: %s", err)
+		log.Infof("Unable to get next crawl pages from the database: %s", err)
 		return
 	}
 
 	newURLs := make(map[string]struct{})
 	lastTested := time.Now()
-	for _, curURL := range nextURLs {
-		result := RunCrawl(curURL.URL)
+	for _, page := range nextPages {
+		result := RunCrawl(page.URL)
 
 		if !result.Success {
-			err := curURL.UpdateURL(db.CrawledURL{
-				ID:              curURL.ID,
-				URL:             curURL.URL,
-				Success:         false,
-				CrawlDuration:   result.ParsedBody.CrawlTime,
-				ResponseCode:    result.ResponseCode,
-				PageTitle:       result.ParsedBody.PageTitle,
-				PageDescription: result.ParsedBody.PageDescription,
-				Headings:        result.ParsedBody.Headings,
-				LastTested:      &lastTested,
+			err := page.Update(db.CrawledPage{
+				ID:            page.ID,
+				URL:           page.URL,
+				Success:       false,
+				CrawlDuration: result.ParsedPage.CrawlTime,
+				StatusCode:    result.StatusCode,
+				Title:         result.ParsedPage.Title,
+				Description:   result.ParsedPage.Description,
+				Headings:      result.ParsedPage.Headings,
+				LastTested:    &lastTested,
 			})
 			if err != nil {
-				log.Infof("Unable to save CrawledURL data for URL '%s':", curURL.URL, err)
+				log.Infof("Unable to save CrawledURL data for URL '%s':", page.URL, err)
 			}
 
 			continue
 		}
 
-		err := curURL.UpdateURL(db.CrawledURL{
-			ID:              curURL.ID,
-			URL:             curURL.URL,
-			Success:         result.Success,
-			CrawlDuration:   result.ParsedBody.CrawlTime,
-			ResponseCode:    result.ResponseCode,
-			PageTitle:       result.ParsedBody.PageTitle,
-			PageDescription: result.ParsedBody.PageDescription,
-			Headings:        result.ParsedBody.Headings,
-			LastTested:      &lastTested,
+		err := page.Update(db.CrawledPage{
+			ID:            page.ID,
+			URL:           page.URL,
+			Success:       result.Success,
+			CrawlDuration: result.ParsedPage.CrawlTime,
+			StatusCode:    result.StatusCode,
+			Title:         result.ParsedPage.Title,
+			Description:   result.ParsedPage.Description,
+			Headings:      result.ParsedPage.Headings,
+			LastTested:    &lastTested,
 		})
 		if err != nil {
-			log.Infof("Unable to save CrawledURL data for URL '%s':", curURL.URL, err)
+			log.Infof("Unable to save CrawledURL data for URL '%s':", page.URL, err)
 		}
 
 		// Only external URLs will be added to the database. However, we could also run the internal
 		// links/URLs as well: this is out of scope for now.
-		for _, newURL := range result.ParsedBody.Links.External {
-			newURLs[newURL] = struct{}{}
+		for _, url := range result.ParsedPage.Links.External {
+			newURLs[url] = struct{}{}
 		}
 	} // End of range
 
@@ -82,19 +82,19 @@ func RunEngine() {
 	}
 
 	added := 0
-	for u := range newURLs {
-		newURL := db.CrawledURL{URL: u}
+	for url := range newURLs {
+		newPage := db.CrawledPage{URL: url}
 
-		err := newURL.Save()
+		err := newPage.Save()
 		if err != nil {
-			log.Infof("Unable to save new URL '%s' to the database", newURL.URL)
+			log.Infof("Unable to save new URL '%s' to the database", newPage.URL)
 		} else {
 			added += 1
 		}
 	}
 
 	// TODO: make this into a table.
-	log.Infof("Crawled through %d URLs. Found a total of %d new URLs. Added %d new URLs to the database", len(nextURLs), len(newURLs), added)
+	log.Infof("Crawled through %d pages. Found a total of %d new URLs. Added %d new pages to explore into the database.", len(nextPages), len(newURLs), added)
 }
 
 func RunIndex() {
