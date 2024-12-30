@@ -9,8 +9,8 @@ import (
 func StartCrawlerCronJobs(gdb *gorm.DB) {
 	c := cron.New()
 
-	c.AddFunc("0 * * * *", func() { RunCrawler(gdb) })   // Run every hour
-	c.AddFunc("15 * * * *", func() { RunIndexing(gdb) }) // Run every hour at 15 minutes past
+	c.AddFunc("0 * * * *", func() { RunCrawler(gdb) })  // Run every hour
+	c.AddFunc("15 * * * *", func() { RunIndexer(gdb) }) // Run every hour at 15 minutes past
 	c.Start()
 
 	cronCount := len(c.Entries())

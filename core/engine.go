@@ -106,8 +106,8 @@ func RunCrawler(gdb *gorm.DB) {
 	log.Infof("Crawled through %d pages. Found a total of %d new URLs. Added %d new pages to explore into the database.", len(nextPages), len(newURLs), added)
 }
 
-// RunIndexing performs the process of building and saving the search engine index.
-func RunIndexing(gdb *gorm.DB) {
+// RunIndexer performs the process of building and saving the search engine index.
+func RunIndexer(gdb *gorm.DB) {
 	log.Info("Started search engine indexing...")
 	defer log.Info("Search engine indexing has finished.")
 
