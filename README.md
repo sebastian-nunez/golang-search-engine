@@ -9,6 +9,9 @@ A prototype search engine with a web crawler and full text search through UI and
 - [Getting started](#getting-started)
   - [Running locally](#running-locally)
   - [Login credentials](#login-credentials)
+  - [Seeding URL(s) for the crawler](#seeding-urls-for-the-crawler)
+- [API reference](#api-reference)
+  - [`POST /api/v1/search`](#post-apiv1search)
 
 ## Core features (MVP)
 
@@ -29,6 +32,8 @@ A prototype search engine with a web crawler and full text search through UI and
 
 ## Getting started
 
+While running the app locally, the main caveats are around seeding data (e.g. you will have to manually insert admin credentials to login as well and you will have to insert the first URL(s) for the crawler to start exploring).
+
 ### Running locally
 
 1. Clone the repo: `git clone https://github.com/sebastian-nunez/golang-search-engine`
@@ -37,7 +42,8 @@ A prototype search engine with a web crawler and full text search through UI and
 4. Install [`Air`](https://github.com/air-verse/air) : `go install github.com/air-verse/air@latest`
 5. Run docker compose: `docker compose up`
 6. Run the app: `air`
-7. Open the crawler settings dashboard: [http://localhost:3000/](http://localhost:3000/) (see the `Login credentials` section below for instructions on how to login)
+7. You must open and log into the crawler settings dashboard: [http://localhost:3000/](http://localhost:3000/) (see the `Login credentials` section below for instructions on how to login). Otherwise, the initial crawler settings will NOT be set in the database.
+8. You must manually seed the initial URL(s) for the crawler to begin exploring into the database (see the `Seeding URL(s) for the crawler` section below).
 
 ### Login credentials
 
@@ -49,3 +55,64 @@ Simply hit the following API endpoint: `GET /api/v1/create-admin` (or just open 
 - **Password:** `password`
 
 <!-- TODO: add API docs for the /search endpoints -->
+
+### Seeding URL(s) for the crawler
+
+With a fresh database, the crawler will not have any websites to visit. So, we must give it a starting point(s).
+
+For now, the only way is through an insert query into PostgreSQL:
+
+```sql
+-- id is a UUID (v4)
+INSERT INTO crawled_pages (id, url)
+VALUES ('532c357c-0397-4d9f-b63a-c06255ae747e', 'https://news.yahoo.com/');
+```
+
+TODO: add the API endpoint for this.
+
+## API reference
+
+To try out the API, I recommend downloading and using [Postman](https://www.postman.com/downloads/).
+
+- **Base URL (prod):** TODO
+- **Base URL (localhost):** `http://localhost:3000`
+
+**Note:** To get the full URL, simply concatenate the Base URL to the API endpoint targeted (e.g. `http://localhost:3000/api/v1/search`)
+
+### `POST /api/v1/search`
+
+Allows users to search for indexed web pages which contain the query terms.
+
+**JSON request body:**
+
+```json
+{
+  "query": "sebastian nunez"
+}
+```
+
+**JSON response:**
+
+```json
+{
+  "results": [
+    {
+      "id": "b1a34930-b2a3-4f1f-9454-10e926754d55",
+      "url": "https://www.sebastian-nunez.com/",
+      "indexed": true,
+      "success": true,
+      "crawlDuration": 89205,
+      "statusCode": 200,
+      "lastTested": "2024-12-30T01:30:40.975935-05:00",
+      "title": "Sebastian Nunez",
+      "description": "Sebastian Nunez - Software Engineer Intern at Google | ex. UKG, JPMorgan Chase & Co. | Google Tech Exchange Scholar | Apple Pathways Alliance | Computer Science student at Florida International University",
+      "headings": "Hey, I'm Sebastian!",
+      "createdAt": "2024-12-30T01:31:34.671422-05:00",
+      "updatedAt": "2024-12-30T01:31:34.671422-05:00",
+      "deletedAt": null
+    }
+    // More results...
+  ],
+  "total": 1
+}
+```
