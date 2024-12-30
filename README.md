@@ -2,6 +2,8 @@
 
 A prototype search engine with a web crawler and full text search through UI and API integrations written in Go.
 
+![search demo 1](./docs/images/search_demo_1.gif)
+
 ## Table of contents <!-- omit in toc -->
 
 - [Core features (MVP)](#core-features-mvp)
