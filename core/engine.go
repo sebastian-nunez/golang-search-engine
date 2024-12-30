@@ -1,6 +1,7 @@
 package core
 
 import (
+	"math"
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
@@ -37,7 +38,9 @@ func RunEngine() {
 
 	newURLs := make(map[string]struct{})
 	lastTested := time.Now()
-	for _, page := range nextPages {
+	numberWidth := int(math.Log10(float64(len(nextPages)))) + 1
+	for i, page := range nextPages {
+		log.Infof("Crawling: %3d%% (%0*d/%d) %s", int(float64(i+1)/float64(len(nextPages))*100), numberWidth, i+1, len(nextPages), page.URL)
 		result := RunCrawl(page.URL)
 
 		if !result.Success {
@@ -113,7 +116,7 @@ func RunIndex() {
 		log.Info("Unable to get un-indexed pages from the database: %s", err)
 		return
 	}
-	log.Infof("There are %d pages which are not indexed", len(notIndexed))
+	log.Infof("Found %d pages to be indexed.", len(notIndexed))
 
 	// Add un-indexed pages to the current index in-memory.
 	idx := make(InvertedIndex)
