@@ -1,27 +1,32 @@
 package core
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/sebastian-nunez/golang-search-engine/db"
 )
 
-// Index is an in-memory inverted index. It maps tokens to page IDs (stored in the database).
-type Index map[string][]string
+// InvertedIndex is an in-memory inverted index. It maps tokens to a set of page IDs (stored in the database).
+type InvertedIndex map[string]map[string]struct{}
 
-func (idx Index) Add(pages []db.CrawledPage) {
+func (idx InvertedIndex) Add(pages []db.CrawledPage) {
 	for _, page := range pages {
-		inputStr := fmt.Sprintf("%s %s %s %s", page.URL, page.Title, page.Description, page.Headings)
-		tokens := analyze(inputStr)
+		doc := buildDocument(page)
+		tokens := createIndexTokens(doc)
 
 		for _, token := range tokens {
-			pageIDs := idx[token]
-			if pageIDs != nil && pageIDs[len(pageIDs)-1] == page.ID {
-				// Avoid adding duplicate pages
-				continue
+			_, ok := idx[token]
+			if !ok {
+				idx[token] = make(map[string]struct{})
 			}
 
-			idx[token] = append(idx[token], page.ID)
+			idx[token][page.ID] = struct{}{}
 		}
 	}
+}
+
+// buildDocument concatenates relevant text fields for indexing.
+func buildDocument(page db.CrawledPage) string {
+	fields := []string{page.URL, page.Title, page.Description, page.Headings}
+	return strings.Join(fields, " ")
 }

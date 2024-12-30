@@ -6,8 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// Index is an in-memory inverted index. It maps tokens to Page IDs (stored in the database).
-type Index map[string][]string
+// InvertedIndex is an in-memory inverted index. It maps tokens to a set of page IDs (stored in the database).
+type InvertedIndex map[string]map[string]struct{}
 
 type SearchIndex struct {
 	ID        string         `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
@@ -22,7 +22,7 @@ func (si *SearchIndex) TableName() string {
 	return "search_index"
 }
 
-func (si *SearchIndex) Save(index Index, pages []CrawledPage) error {
+func (si *SearchIndex) Save(index InvertedIndex, pages []CrawledPage) error {
 	for token, pageIDs := range index {
 		newIndex := &SearchIndex{Value: token}
 
@@ -32,7 +32,7 @@ func (si *SearchIndex) Save(index Index, pages []CrawledPage) error {
 		}
 
 		var pagesToAppend []CrawledPage
-		for _, pageID := range pageIDs {
+		for pageID := range pageIDs {
 			for _, page := range pages {
 				if page.ID == pageID {
 					pagesToAppend = append(pagesToAppend, page)
