@@ -10,10 +10,8 @@ import (
 )
 
 // RunCrawler starts and manages the search engine crawling process.
-// It retrieves crawl settings from the database, filters based on enabled
-// crawling and URLs per hour limit, performs crawls on retrieved URLs,
-// updates existing pages and potentially adds newly discovered external URLs
-// to the database for future crawling.
+// It begins crawling based on the search settings, performs crawls on retrieved URLs,
+// updates existing pages and potentially adds newly discovered EXTERNAL URLs to the database for future crawling.
 func RunCrawler(gdb *gorm.DB) {
 	log.Info("Started search engine crawl...")
 	defer log.Info("Search engine crawl has finished.")
