@@ -40,10 +40,10 @@ func (cp *CrawledPage) Update(gdb *gorm.DB, input CrawledPage) error {
 	return nil
 }
 
-// GetNextCrawlPages returns all pages which have NOT been previously been tested. Biased towards shorter URLs first.
+// GetNextCrawlPages returns all pages which have NOT been previously been tested.
 func (cp *CrawledPage) GetNextCrawlPages(gdb *gorm.DB, limit int) ([]CrawledPage, error) {
 	var pages []CrawledPage
-	tx := gdb.Where("last_tested IS NULL").Order("LENGTH(url)").Limit(limit).Find(&pages)
+	tx := gdb.Where("last_tested IS NULL").Limit(limit).Find(&pages)
 	if tx.Error != nil {
 		log.Info(tx.Error)
 		return nil, tx.Error
