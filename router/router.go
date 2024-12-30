@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
-	"github.com/sebastian-nunez/golang-search-engine/db"
 	"github.com/sebastian-nunez/golang-search-engine/handler"
 	"github.com/sebastian-nunez/golang-search-engine/middleware"
 )
@@ -29,21 +28,4 @@ func SetupRoutes(app *fiber.App) {
 		Expiration:   30 * time.Minute,
 		CacheControl: true, // Enable client side caching
 	}))
-
-	// DEBUG ONLY
-	// TODO: For testing, always create a set of basic credentials. Remove for a production app.
-	v1.Get("/create-admin", func(c *fiber.Ctx) error {
-		u := &db.User{}
-		err := u.CreateAdmin("jdoe@google.com", "password")
-		if err != nil {
-			c.Status(fiber.StatusInternalServerError)
-			return c.JSON(fiber.Map{
-				"message": err.Error(),
-			})
-		}
-
-		return c.JSON(fiber.Map{
-			"message": "User created!",
-		})
-	})
 }
