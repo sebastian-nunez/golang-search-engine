@@ -6,9 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// InvertedIndex is an in-memory inverted index. It maps tokens to a set of page IDs (stored in the database).
-type InvertedIndex map[string]map[string]struct{}
-
 type SearchIndex struct {
 	ID        string         `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
 	Value     string         `json:"value"`
@@ -22,7 +19,11 @@ func (si *SearchIndex) TableName() string {
 	return "search_index"
 }
 
-func (si *SearchIndex) Save(index InvertedIndex, pages []CrawledPage) error {
+// Save persists the inverted index data to the database, establishing
+// associations between tokens and crawled pages.
+//
+// `index` is an invented index mapping tokens (words) to a set of pageIDs.
+func (si *SearchIndex) Save(index map[string]map[string]struct{}, pages []CrawledPage) error {
 	for token, pageIDs := range index {
 		newIndex := &SearchIndex{Value: token}
 
@@ -31,6 +32,8 @@ func (si *SearchIndex) Save(index InvertedIndex, pages []CrawledPage) error {
 			return err
 		}
 
+		// Since the inverted index only holds the pageIDs, we have to manually find which page
+		// corresponds with that ID to get the full page object for Gorm to create the association.
 		var pagesToAppend []CrawledPage
 		for pageID := range pageIDs {
 			for _, page := range pages {
@@ -41,7 +44,7 @@ func (si *SearchIndex) Save(index InvertedIndex, pages []CrawledPage) error {
 			}
 		}
 
-		if err := DBConn.Model(&newIndex).Association("pages").Append(&pagesToAppend); err != nil {
+		if err := DBConn.Model(&newIndex).Association("Pages").Append(&pagesToAppend); err != nil {
 			return err
 		}
 	}
