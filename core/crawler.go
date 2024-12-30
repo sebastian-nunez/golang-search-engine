@@ -14,7 +14,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-type CrawlMetadata struct {
+type CrawlData struct {
 	URL        string
 	Success    bool
 	StatusCode int
@@ -37,34 +37,34 @@ type Links struct {
 	External []string
 }
 
-func RunCrawl(inputUrl string) CrawlMetadata {
+func RunCrawl(inputUrl string) CrawlData {
 	res, err := http.Get(inputUrl)
 	baseURL, _ := url.Parse(inputUrl) // Ignoring error since GET request will fail given invalid input URL
 	if err != nil || res == nil {
 		log.Infof("Something went wrong while crawling '%s': %s", inputUrl, err)
-		return CrawlMetadata{URL: inputUrl, Success: false, StatusCode: 0, ParsedPage: ParsedPage{}}
+		return CrawlData{URL: inputUrl, Success: false, StatusCode: 0, ParsedPage: ParsedPage{}}
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
 		log.Infof("Received HTTP status code '%d' while crawling '%s'", res.StatusCode, inputUrl)
-		return CrawlMetadata{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
+		return CrawlData{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
 	}
 
 	contentType := res.Header.Get(fiber.HeaderContentType)
 	if !strings.HasPrefix(contentType, utils.ContentTypeHTML) {
 		log.Infof("Received content type of '%s' and expected HTML while crawling '%s'", contentType, inputUrl)
 		// Success is set to false since it could be a temporary issue and we can still retry in the future.
-		return CrawlMetadata{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
+		return CrawlData{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
 	}
 
 	data, err := parsePageBody(res.Body, baseURL)
 	if err != nil {
 		log.Infof("Something went wrong getting data from html body for URL '%s': %s", inputUrl, err)
-		return CrawlMetadata{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
+		return CrawlData{URL: inputUrl, Success: false, StatusCode: res.StatusCode, ParsedPage: ParsedPage{}}
 	}
 
-	return CrawlMetadata{URL: inputUrl, Success: true, StatusCode: res.StatusCode, ParsedPage: data}
+	return CrawlData{URL: inputUrl, Success: true, StatusCode: res.StatusCode, ParsedPage: data}
 }
 
 func parsePageBody(body io.Reader, baseURL *url.URL) (ParsedPage, error) {
