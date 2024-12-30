@@ -6,12 +6,14 @@ A prototype search engine with a web crawler and full text search through UI and
 
 - [Core features (MVP)](#core-features-mvp)
 - [Tech stack](#tech-stack)
-- [Getting started](#getting-started)
-  - [Running locally](#running-locally)
-  - [Login credentials](#login-credentials)
-  - [Seeding URL(s) for the crawler](#seeding-urls-for-the-crawler)
 - [API reference](#api-reference)
   - [`POST /api/v1/search`](#post-apiv1search)
+- [Getting started](#getting-started)
+  - [Using the production servers](#using-the-production-servers)
+  - [Running locally](#running-locally)
+    - [Login credentials](#login-credentials)
+    - [Initial crawler settings](#initial-crawler-settings)
+    - [Seeding URL(s) for the crawler](#seeding-urls-for-the-crawler)
 
 ## Core features (MVP)
 
@@ -29,46 +31,6 @@ A prototype search engine with a web crawler and full text search through UI and
 - **Auth:** JWT tokens using Cookies
 - **UI:** [Templ](https://templ.guide/), [HTMX](https://htmx.org/), [DaisyUI](https://daisyui.com/), [TailwindCSS](https://tailwindcss.com/)
 - **Deployment:** [Docker](https://www.docker.com/), [Air](https://github.com/air-verse/air), [Railway](https://railway.com/)
-
-## Getting started
-
-While running the app locally, the main caveats are around seeding data (e.g. you will have to manually insert admin credentials to login as well and you will have to insert the first URL(s) for the crawler to start exploring).
-
-### Running locally
-
-1. Clone the repo: `git clone https://github.com/sebastian-nunez/golang-search-engine`
-2. Install [`Go`](https://go.dev/doc/install) 1.23 or greater
-3. Install [`Docker Desktop`](https://docs.docker.com/compose/install/)
-4. Install [`Air`](https://github.com/air-verse/air) : `go install github.com/air-verse/air@latest`
-5. Run docker compose: `docker compose up`
-6. Run the app: `air`
-7. You must open and log into the crawler settings dashboard: [http://localhost:3000/](http://localhost:3000/) (see the `Login credentials` section below for instructions on how to login). Otherwise, the initial crawler settings will NOT be set in the database.
-8. You must manually seed the initial URL(s) for the crawler to begin exploring into the database (see the `Seeding URL(s) for the crawler` section below).
-
-### Login credentials
-
-For testing purposes, some dummy admin credentials can be inserted into the database.
-
-Simply hit the following API endpoint: `GET /api/v1/create-admin` (or just open in the browser [http://localhost:3000/api/v1/create-admin](http://localhost:3000/api/v1/create-admin))
-
-- **Email:** `jdoe@google.com`
-- **Password:** `password`
-
-<!-- TODO: add API docs for the /search endpoints -->
-
-### Seeding URL(s) for the crawler
-
-With a fresh database, the crawler will not have any websites to visit. So, we must give it a starting point(s).
-
-For now, the only way is through an insert query into PostgreSQL:
-
-```sql
--- id is a UUID (v4)
-INSERT INTO crawled_pages (id, url)
-VALUES ('532c357c-0397-4d9f-b63a-c06255ae747e', 'https://news.yahoo.com/');
-```
-
-TODO: add the API endpoint for this.
 
 ## API reference
 
@@ -116,3 +78,64 @@ Allows users to search for indexed web pages which contain the query terms.
   "total": 1
 }
 ```
+
+## Getting started
+
+### Using the production servers
+
+TODO
+
+### Running locally
+
+While running the app locally, the main caveats are around seeding the initial data into the database. For now, these are the required actions (SQL queries are provided for convenience):
+
+1. Insert admin credentials to login
+2. Insert the initial crawler settings
+3. Insert the first URL(s) for the crawler to start exploring
+
+**Here are the installation steps:**
+
+1. Clone the repo: `git clone https://github.com/sebastian-nunez/golang-search-engine`
+2. Install [`Go`](https://go.dev/doc/install) 1.23 or greater
+3. Install [`Docker Desktop`](https://docs.docker.com/compose/install/)
+4. Install [`Air`](https://github.com/air-verse/air) : `go install github.com/air-verse/air@latest`
+5. Run docker compose to start the database: `docker compose up`
+6. Insert your admin credentials into the database (see the `Login credentials` section below).
+7. Create the initial crawler settings (see the `Initial crawler settings` section below).
+8. You must manually seed the initial URL(s) for the crawler to begin exploring into the database (see the `Seeding URL(s) for the crawler` section below).
+9. Run the app: `air`
+10. You can open the crawler settings dashboard: [http://localhost:3000/](http://localhost:3000/)
+11. Check out the `API reference` section
+
+#### Login credentials
+
+For testing purposes, admin credentials can be inserted into the database. You can use the SQL query below:
+
+```sql
+INSERT INTO users (id, email, password, is_admin, created_at, updated_at)
+VALUES (uuid_generate_v4(), '<your_email>', '<your_password_hash>', true, NOW(), NOW());
+```
+
+**Note:** `password` is your hashed password. So, use [bycrypt](https://bcrypt.online/) to hash your plain-text password (cost factor = 10).
+
+#### Initial crawler settings
+
+The crawler must be configured before starting up the program for the first time. This is the SQL query:
+
+```sql
+INSERT INTO search_settings (id, urls_per_hour, search_on, add_new_urls, updated_at)
+VALUES (1, 25, true, true, NOW());
+```
+
+#### Seeding URL(s) for the crawler
+
+With a fresh database, the crawler will not have any websites to visit. So, we must give it a starting point(s).
+
+For now, the only way is through an insert query into PostgreSQL:
+
+```sql
+INSERT INTO crawled_pages (id, url)
+VALUES (uuid_generate_v4(), '<your_url>');
+```
+
+**Quick tip:** sites like `https://news.yahoo.com/` are good initial seeds since they have A LOT of external links to other pages.
