@@ -67,7 +67,7 @@ func (si *SearchIndex) FullTextSearch(gdb *gorm.DB, text string) ([]CrawledPage,
 		var searchIndexes []SearchIndex
 		// Run a "contains" text query across all index tokens for the search term
 		// and eagerly fetch the corresponding CrawledPages at the same time.
-		if err := gdb.Preload("Pages").Where("value LIKE ?", "%"+term+"%").Find(&searchIndexes).Error; err != nil {
+		if err := gdb.Preload("Pages").Where("value LIKE ?", "%"+term+"%").Order("updated_at, created_at DESC").Find(&searchIndexes).Error; err != nil {
 			return nil, err
 		}
 
