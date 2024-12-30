@@ -42,14 +42,14 @@ func (cp *CrawledPage) Update(input CrawledPage) error {
 
 // GetNextCrawlPages returns all pages which have NOT been previously been tested.
 func (cp *CrawledPage) GetNextCrawlPages(limit int) ([]CrawledPage, error) {
-	var urls []CrawledPage
-	tx := DBConn.Where("last_tested IS NULL").Limit(limit).Find(&urls)
+	var pages []CrawledPage
+	tx := DBConn.Where("last_tested IS NULL").Limit(limit).Find(&pages)
 	if tx.Error != nil {
 		log.Info(tx.Error)
 		return nil, tx.Error
 	}
 
-	return urls, nil
+	return pages, nil
 }
 
 func (cp *CrawledPage) Save() error {
@@ -62,21 +62,21 @@ func (cp *CrawledPage) Save() error {
 }
 
 func (cp *CrawledPage) GetNotIndexed() ([]CrawledPage, error) {
-	var urls []CrawledPage
-	tx := DBConn.Where("indexed = ? AND last_tested IS NOT NULL", false).Find(&urls)
+	var pages []CrawledPage
+	tx := DBConn.Where("indexed = ? AND last_tested IS NOT NULL", false).Find(&pages)
 	if tx.Error != nil {
 		log.Info(tx.Error)
 		return nil, tx.Error
 	}
 
-	return urls, nil
+	return pages, nil
 }
 
-func (cp *CrawledPage) SetIndexedTrue(urls []CrawledPage) error {
-	for _, u := range urls {
-		u.Indexed = true
+func (cp *CrawledPage) SetIndexedTrue(pages []CrawledPage) error {
+	for _, p := range pages {
+		p.Indexed = true
 
-		tx := DBConn.Save(&u)
+		tx := DBConn.Save(&p)
 		if tx.Error != nil {
 			log.Info(tx.Error)
 			return tx.Error
