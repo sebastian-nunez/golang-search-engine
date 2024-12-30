@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -84,6 +85,48 @@ func PostSettings(c *fiber.Ctx) error {
 
 	// c.Append("HX-Refresh", "true")
 	return c.SendString("Settings were saved.")
+}
+
+func PostSearch(c *fiber.Ctx) error {
+	// TODO: will probably be a good idea to add some sort of JSON validator library.
+	if len(c.Body()) == 0 {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"success": false,
+			"message": "Missing required JSON field 'term' in the request body.",
+			"data":    []db.CrawledPage{},
+		})
+	}
+
+	input := &searchInput{}
+	if err := c.BodyParser(&input); err != nil {
+		log.Info(err)
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"message": fmt.Sprintf("Unable to parse search input '%s'. Error: %s", input.Term, err),
+		})
+	}
+
+	if input.Term == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"message": "JSON field 'term' can not be empty",
+		})
+	}
+
+	si := &db.SearchIndex{}
+	pages, err := si.FullTextSearch(input.Term)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"message": fmt.Sprintf("Unable to run the full text search for search term '%s'. Error: %s", input.Term, err),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"results": pages,
+		"total":   len(pages),
+	})
 }
 
 func RenderHomePage(c *fiber.Ctx) error {

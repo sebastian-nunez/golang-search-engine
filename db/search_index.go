@@ -1,6 +1,8 @@
 package db
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -50,4 +52,29 @@ func (si *SearchIndex) Save(index map[string]map[string]struct{}, pages []Crawle
 	}
 
 	return nil
+}
+
+// FullTextSearch retrieves SearchIndex records from the database that contain the given term(s),
+// along with their associated Pages.
+func (si *SearchIndex) FullTextSearch(text string) ([]CrawledPage, error) {
+	searchTerms := strings.Fields(text)
+	if len(searchTerms) == 0 {
+		return nil, fmt.Errorf("no search terms were found")
+	}
+
+	pages := []CrawledPage{}
+	for _, term := range searchTerms {
+		var searchIndexes []SearchIndex
+		// Run a "contains" text query across all index tokens for the search term
+		// and eagerly fetch the corresponding CrawledPages at the same time.
+		if err := DBConn.Preload("Pages").Where("value LIKE ?", "%"+term+"%").Find(&searchIndexes).Error; err != nil {
+			return nil, err
+		}
+
+		for _, idx := range searchIndexes {
+			pages = append(pages, idx.Pages...)
+		}
+	}
+
+	return pages, nil
 }

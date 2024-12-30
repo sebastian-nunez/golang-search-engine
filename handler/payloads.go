@@ -13,3 +13,7 @@ type settingsForm struct {
 	// Add new URLs
 	AddNewURLs bool `form:"addNewUrls"`
 }
+
+type searchInput struct {
+	Term string `json:"term"`
+}
