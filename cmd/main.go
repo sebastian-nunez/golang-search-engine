@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/sebastian-nunez/golang-search-engine/config"
@@ -31,6 +32,10 @@ func main() {
 		ReadinessEndpoint: "/ready",
 	}))
 	app.Get("/metrics", monitor.New())
+	app.Use(limiter.New(limiter.Config{
+		Max:        100,
+		Expiration: 1 * time.Hour,
+	}))
 
 	gdb, err := database.NewGormDB()
 	if err != nil {
