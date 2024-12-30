@@ -1,11 +1,11 @@
 package handler
 
-type loginForm struct {
+type loginPayload struct {
 	Email    string `form:"email"`
 	Password string `form:"password"`
 }
 
-type settingsForm struct {
+type settingsPayload struct {
 	// Number of URLs per hour
 	URLsPerHour int `form:"urlsPerHour"`
 	// Enable/disable searching with the crawlers
@@ -14,6 +14,6 @@ type settingsForm struct {
 	AddNewURLs bool `form:"addNewUrls"`
 }
 
-type searchInput struct {
+type searchPayload struct {
 	Query string `json:"query"`
 }

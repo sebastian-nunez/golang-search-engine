@@ -1,4 +1,4 @@
-package db
+package model
 
 import (
 	"time"
@@ -30,8 +30,8 @@ type CrawledPage struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"` // Soft delete date
 }
 
-func (cp *CrawledPage) Update(input CrawledPage) error {
-	tx := DBConn.Select("url", "success", "crawl_duration", "status_code", "title", "description", "headings", "last_tested", "updated_at").Omit("created_at").Save(&input)
+func (cp *CrawledPage) Update(gdb *gorm.DB, input CrawledPage) error {
+	tx := gdb.Select("url", "success", "crawl_duration", "status_code", "title", "description", "headings", "last_tested", "updated_at").Omit("created_at").Save(&input)
 	if tx.Error != nil {
 		log.Info(tx.Error)
 		return tx.Error
@@ -41,9 +41,9 @@ func (cp *CrawledPage) Update(input CrawledPage) error {
 }
 
 // GetNextCrawlPages returns all pages which have NOT been previously been tested. Biased towards shorter URLs first.
-func (cp *CrawledPage) GetNextCrawlPages(limit int) ([]CrawledPage, error) {
+func (cp *CrawledPage) GetNextCrawlPages(gdb *gorm.DB, limit int) ([]CrawledPage, error) {
 	var pages []CrawledPage
-	tx := DBConn.Where("last_tested IS NULL").Order("LENGTH(url)").Limit(limit).Find(&pages)
+	tx := gdb.Where("last_tested IS NULL").Order("LENGTH(url)").Limit(limit).Find(&pages)
 	if tx.Error != nil {
 		log.Info(tx.Error)
 		return nil, tx.Error
@@ -52,8 +52,8 @@ func (cp *CrawledPage) GetNextCrawlPages(limit int) ([]CrawledPage, error) {
 	return pages, nil
 }
 
-func (cp *CrawledPage) Save() error {
-	tx := DBConn.Save(&cp)
+func (cp *CrawledPage) Save(gdb *gorm.DB) error {
+	tx := gdb.Save(&cp)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -61,9 +61,9 @@ func (cp *CrawledPage) Save() error {
 	return nil
 }
 
-func (cp *CrawledPage) GetNotIndexed() ([]CrawledPage, error) {
+func (cp *CrawledPage) GetNotIndexed(gdb *gorm.DB) ([]CrawledPage, error) {
 	var pages []CrawledPage
-	tx := DBConn.Where("indexed = false AND success = true AND last_tested IS NOT NULL").Find(&pages)
+	tx := gdb.Where("indexed = false AND success = true AND last_tested IS NOT NULL").Find(&pages)
 	if tx.Error != nil {
 		log.Info(tx.Error)
 		return nil, tx.Error
@@ -72,11 +72,11 @@ func (cp *CrawledPage) GetNotIndexed() ([]CrawledPage, error) {
 	return pages, nil
 }
 
-func (cp *CrawledPage) SetIndexedTrue(pages []CrawledPage) error {
+func (cp *CrawledPage) SetIndexedTrue(gdb *gorm.DB, pages []CrawledPage) error {
 	for _, p := range pages {
 		p.Indexed = true
 
-		tx := DBConn.Save(&p)
+		tx := gdb.Save(&p)
 		if tx.Error != nil {
 			log.Info(tx.Error)
 			return tx.Error

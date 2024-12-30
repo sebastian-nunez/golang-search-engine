@@ -1,10 +1,11 @@
-package db
+package model
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/sebastian-nunez/golang-search-engine/utils"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -16,7 +17,7 @@ type User struct {
 	UpdatedAt time.Time  `json:"updatedAt"`
 }
 
-func (u *User) CreateAdmin(email string, password string) error {
+func (u *User) CreateAdmin(gdb *gorm.DB, email string, password string) error {
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
 		return fmt.Errorf("unable to hash password: %s", err)
@@ -28,15 +29,15 @@ func (u *User) CreateAdmin(email string, password string) error {
 		IsAdmin:  true,
 	}
 
-	if err := DBConn.Create(&user).Error; err != nil {
+	if err := gdb.Create(&user).Error; err != nil {
 		return fmt.Errorf("unable to create user in the database: %s", err)
 	}
 
 	return nil
 }
 
-func (u *User) LoginAsAdmin(email string, password string) (*User, error) {
-	if err := DBConn.Where("email = ? AND is_admin = ?", email, true).First(&u).Error; err != nil {
+func (u *User) LoginAsAdmin(gdb *gorm.DB, email string, password string) (*User, error) {
+	if err := gdb.Where("email = ? AND is_admin = ?", email, true).First(&u).Error; err != nil {
 		return nil, fmt.Errorf("user not found")
 	}
 

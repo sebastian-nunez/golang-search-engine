@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/sebastian-nunez/golang-search-engine/db"
+	"github.com/sebastian-nunez/golang-search-engine/model"
 )
 
 // InvertedIndex is a map that stores tokens (words) as keys and maps each token
@@ -24,7 +24,7 @@ type InvertedIndex map[string]map[string]struct{}
 
 // Add adds crawled pages to the inverted index (in-memory), efficiently handling
 // duplicate page entries for the same token.
-func (idx InvertedIndex) Add(pages []db.CrawledPage) {
+func (idx InvertedIndex) Add(pages []model.CrawledPage) {
 	for i, page := range pages {
 		doc := buildDocument(page)
 		tokens := createIndexTokens(doc)
@@ -46,7 +46,7 @@ func (idx InvertedIndex) Add(pages []db.CrawledPage) {
 }
 
 // buildDocument concatenates relevant text fields for indexing.
-func buildDocument(page db.CrawledPage) string {
+func buildDocument(page model.CrawledPage) string {
 	fields := []string{page.URL, page.Title, page.Description, page.Headings}
 	return strings.Join(fields, " ")
 }

@@ -1,4 +1,4 @@
-package db
+package model
 
 import (
 	"fmt"
@@ -25,12 +25,12 @@ func (si *SearchIndex) TableName() string {
 // associations between tokens and crawled pages.
 //
 // `index` is an invented index mapping tokens (words) to a set of pageIDs.
-func (si *SearchIndex) Save(index map[string]map[string]struct{}, pages []CrawledPage) error {
+func (si *SearchIndex) Save(gdb *gorm.DB, index map[string]map[string]struct{}, pages []CrawledPage) error {
 	for token, pageIDs := range index {
 		newIndex := &SearchIndex{Value: token}
 
 		// Indexes must not be overwritten in the database. We must either fetch the existing index, or create a new one.
-		if err := DBConn.Where(SearchIndex{Value: token}).FirstOrCreate(newIndex).Error; err != nil {
+		if err := gdb.Where(SearchIndex{Value: token}).FirstOrCreate(newIndex).Error; err != nil {
 			return err
 		}
 
@@ -46,7 +46,7 @@ func (si *SearchIndex) Save(index map[string]map[string]struct{}, pages []Crawle
 			}
 		}
 
-		if err := DBConn.Model(&newIndex).Association("Pages").Append(&pagesToAppend); err != nil {
+		if err := gdb.Model(&newIndex).Association("Pages").Append(&pagesToAppend); err != nil {
 			return err
 		}
 	}
@@ -56,7 +56,7 @@ func (si *SearchIndex) Save(index map[string]map[string]struct{}, pages []Crawle
 
 // FullTextSearch retrieves SearchIndex records from the database that contain the given term(s),
 // along with their associated Pages.
-func (si *SearchIndex) FullTextSearch(text string) ([]CrawledPage, error) {
+func (si *SearchIndex) FullTextSearch(gdb *gorm.DB, text string) ([]CrawledPage, error) {
 	searchTerms := strings.Fields(text)
 	if len(searchTerms) == 0 {
 		return nil, fmt.Errorf("no search terms were found")
@@ -67,7 +67,7 @@ func (si *SearchIndex) FullTextSearch(text string) ([]CrawledPage, error) {
 		var searchIndexes []SearchIndex
 		// Run a "contains" text query across all index tokens for the search term
 		// and eagerly fetch the corresponding CrawledPages at the same time.
-		if err := DBConn.Preload("Pages").Where("value LIKE ?", "%"+term+"%").Find(&searchIndexes).Error; err != nil {
+		if err := gdb.Preload("Pages").Where("value LIKE ?", "%"+term+"%").Find(&searchIndexes).Error; err != nil {
 			return nil, err
 		}
 

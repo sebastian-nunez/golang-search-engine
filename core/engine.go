@@ -5,20 +5,21 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/sebastian-nunez/golang-search-engine/db"
+	"github.com/sebastian-nunez/golang-search-engine/model"
+	"gorm.io/gorm"
 )
 
-// RunEngine starts and manages the search engine crawling process.
+// RunCrawler starts and manages the search engine crawling process.
 // It retrieves crawl settings from the database, filters based on enabled
 // crawling and URLs per hour limit, performs crawls on retrieved URLs,
 // updates existing pages and potentially adds newly discovered external URLs
 // to the database for future crawling.
-func RunEngine() {
+func RunCrawler(gdb *gorm.DB) {
 	log.Info("Started search engine crawl...")
 	defer log.Info("Search engine crawl has finished.")
 
-	settings := &db.SearchSettings{}
-	err := settings.Get()
+	settings := &model.CrawlerSettings{}
+	err := settings.Get(gdb)
 	if err != nil {
 		log.Errorf("Unable to get search settings: %s", err)
 		return
@@ -29,8 +30,8 @@ func RunEngine() {
 		return
 	}
 
-	cp := &db.CrawledPage{}
-	nextPages, err := cp.GetNextCrawlPages(int(settings.URLsPerHour))
+	cp := &model.CrawledPage{}
+	nextPages, err := cp.GetNextCrawlPages(gdb, int(settings.URLsPerHour))
 	if err != nil {
 		log.Infof("Unable to get next crawl pages from the database: %s", err)
 		return
@@ -41,10 +42,10 @@ func RunEngine() {
 	numberWidth := int(math.Log10(float64(len(nextPages)))) + 1
 	for i, page := range nextPages {
 		log.Infof("Crawling: %3d%% (%0*d/%d) %s", int(float64(i+1)/float64(len(nextPages))*100), numberWidth, i+1, len(nextPages), page.URL)
-		result := RunCrawl(page.URL)
+		result := CrawlPage(page.URL)
 
 		if !result.Success {
-			err := page.Update(db.CrawledPage{
+			err := page.Update(gdb, model.CrawledPage{
 				ID:            page.ID,
 				URL:           page.URL,
 				Success:       false,
@@ -62,7 +63,7 @@ func RunEngine() {
 			continue
 		}
 
-		err := page.Update(db.CrawledPage{
+		err := page.Update(gdb, model.CrawledPage{
 			ID:            page.ID,
 			URL:           page.URL,
 			Success:       result.Success,
@@ -91,9 +92,9 @@ func RunEngine() {
 
 	added := 0
 	for url := range newURLs {
-		newPage := db.CrawledPage{URL: url}
+		newPage := model.CrawledPage{URL: url}
 
-		err := newPage.Save()
+		err := newPage.Save(gdb)
 		if err != nil {
 			log.Infof("Unable to save new URL '%s' to the database", newPage.URL)
 		} else {
@@ -105,13 +106,13 @@ func RunEngine() {
 	log.Infof("Crawled through %d pages. Found a total of %d new URLs. Added %d new pages to explore into the database.", len(nextPages), len(newURLs), added)
 }
 
-// RunIndex performs the process of building and saving the search engine index.
-func RunIndex() {
+// RunIndexing performs the process of building and saving the search engine index.
+func RunIndexing(gdb *gorm.DB) {
 	log.Info("Started search engine indexing...")
 	defer log.Info("Search engine indexing has finished.")
 
-	cp := &db.CrawledPage{}
-	notIndexed, err := cp.GetNotIndexed()
+	cp := &model.CrawledPage{}
+	notIndexed, err := cp.GetNotIndexed(gdb)
 	if err != nil {
 		log.Info("Unable to get un-indexed pages from the database: %s", err)
 		return
@@ -122,14 +123,14 @@ func RunIndex() {
 	idx := make(InvertedIndex)
 	idx.Add(notIndexed) // Large number of pages can cause memory issues here
 
-	si := &db.SearchIndex{}
-	err = si.Save(idx, notIndexed)
+	si := &model.SearchIndex{}
+	err = si.Save(gdb, idx, notIndexed)
 	if err != nil {
 		log.Infof("Unable to save the new search index into the database: %s", err)
 		return
 	}
 
-	err = cp.SetIndexedTrue(notIndexed)
+	err = cp.SetIndexedTrue(gdb, notIndexed)
 	if err != nil {
 		log.Infof("Unable to mark the newly indexed pages as indexed in the database: %s", err)
 		return

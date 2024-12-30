@@ -7,9 +7,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/sebastian-nunez/golang-search-engine/db"
+	"github.com/sebastian-nunez/golang-search-engine/model"
 	"github.com/sebastian-nunez/golang-search-engine/utils"
 	"github.com/sebastian-nunez/golang-search-engine/views"
+	"gorm.io/gorm"
 )
 
 func GetPing(c *fiber.Ctx) error {
@@ -18,22 +19,22 @@ func GetPing(c *fiber.Ctx) error {
 	})
 }
 
-func PostAdminLogin(c *fiber.Ctx) error {
-	input := loginForm{}
-	if err := c.BodyParser(&input); err != nil {
+func PostAdminLogin(c *fiber.Ctx, gdb *gorm.DB) error {
+	payload := loginPayload{}
+	if err := c.BodyParser(&payload); err != nil {
 		log.Info(err)
 		c.Status(fiber.StatusInternalServerError)
 		return htmlError(c, "unable to parse login credentials")
 	}
 
-	if len(input.Email) == 0 || len(input.Password) == 0 {
+	if len(payload.Email) == 0 || len(payload.Password) == 0 {
 		log.Info("invalid login credentials provided for admin login")
 		c.Status(fiber.StatusUnauthorized)
 		return htmlError(c, "invalid login credentials")
 	}
 
-	user := &db.User{}
-	user, err := user.LoginAsAdmin(input.Email, input.Password)
+	user := &model.User{}
+	user, err := user.LoginAsAdmin(gdb, payload.Email, payload.Password)
 	if err != nil {
 		log.Info(err)
 		c.Status(fiber.StatusUnauthorized)
@@ -65,19 +66,19 @@ func PostLogout(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func PostSettings(c *fiber.Ctx) error {
-	input := settingsForm{}
-	if err := c.BodyParser(&input); err != nil {
+func PostSettings(c *fiber.Ctx, gdb *gorm.DB) error {
+	payload := settingsPayload{}
+	if err := c.BodyParser(&payload); err != nil {
 		log.Info(err)
 		return htmlError(c, "unable to parse search settings")
 	}
 
-	settings := &db.SearchSettings{
-		URLsPerHour: uint(input.URLsPerHour),
-		SearchOn:    input.SearchOn,
-		AddNewURLs:  input.AddNewURLs,
+	settings := &model.CrawlerSettings{
+		URLsPerHour: uint(payload.URLsPerHour),
+		SearchOn:    payload.SearchOn,
+		AddNewURLs:  payload.AddNewURLs,
 	}
-	err := settings.Update()
+	err := settings.Update(gdb)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return htmlError(c, "unable to update search settings")
@@ -87,7 +88,7 @@ func PostSettings(c *fiber.Ctx) error {
 	return c.SendString("Settings were saved.")
 }
 
-func PostSearch(c *fiber.Ctx) error {
+func PostSearch(c *fiber.Ctx, gdb *gorm.DB) error {
 	// TODO: will probably be a good idea to add some sort of JSON validator library.
 	if len(c.Body()) == 0 {
 		c.Status(fiber.StatusBadRequest)
@@ -96,28 +97,28 @@ func PostSearch(c *fiber.Ctx) error {
 		})
 	}
 
-	input := &searchInput{}
-	if err := c.BodyParser(&input); err != nil {
+	payload := &searchPayload{}
+	if err := c.BodyParser(&payload); err != nil {
 		log.Info(err)
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"message": fmt.Sprintf("Unable to parse search query '%s'. Error: %s", input.Query, err),
+			"message": fmt.Sprintf("Unable to parse search query '%s'. Error: %s", payload.Query, err),
 		})
 	}
 
-	if input.Query == "" {
+	if payload.Query == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"message": "JSON field 'query' can not be empty",
 		})
 	}
 
-	si := &db.SearchIndex{}
-	pages, err := si.FullTextSearch(input.Query)
+	si := &model.SearchIndex{}
+	pages, err := si.FullTextSearch(gdb, payload.Query)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"message": fmt.Sprintf("Unable to run the full text search for search query '%s'. Error: %s", input.Query, err),
+			"message": fmt.Sprintf("Unable to run the full text search for search query '%s'. Error: %s", payload.Query, err),
 		})
 	}
 
@@ -127,11 +128,11 @@ func PostSearch(c *fiber.Ctx) error {
 	})
 }
 
-func RenderHomePage(c *fiber.Ctx) error {
-	settings := &db.SearchSettings{}
-	err := settings.Get()
+func RenderHomePage(c *fiber.Ctx, gdb *gorm.DB) error {
+	settings := &model.CrawlerSettings{}
+	err := settings.Get(gdb)
 	if err != nil {
-		err := settings.CreateDefault()
+		err := settings.CreateDefault(gdb)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return htmlError(c, "unable to create default search settings")

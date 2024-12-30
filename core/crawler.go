@@ -37,7 +37,8 @@ type Links struct {
 	External []string
 }
 
-func RunCrawl(inputUrl string) CrawlData {
+// CrawlPage fetches the given URL and extracts relevant data from the HTML content.
+func CrawlPage(inputUrl string) CrawlData {
 	res, err := http.Get(inputUrl)
 	baseURL, _ := url.Parse(inputUrl) // Ignoring error since GET request will fail given invalid input URL
 	if err != nil || res == nil {
