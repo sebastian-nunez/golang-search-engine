@@ -113,6 +113,7 @@ func PostSearch(c *fiber.Ctx, gdb *gorm.DB) error {
 		})
 	}
 
+	// TODO: add rate limiting
 	si := &model.SearchIndex{}
 	pages, err := si.FullTextSearch(gdb, payload.Query)
 	if err != nil {
