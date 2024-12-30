@@ -126,7 +126,7 @@ VALUES (uuid_generate_v4(), '<your_email>', '<your_password_hash>', true, NOW(),
 The crawler must be configured before starting up the program for the first time. This is the SQL query:
 
 ```sql
-INSERT INTO search_settings (id, urls_per_hour, search_on, add_new_urls, updated_at)
+INSERT INTO crawler_settings (id, urls_per_hour, search_on, add_new_urls, updated_at)
 VALUES (1, 25, true, true, NOW());
 ```
 
