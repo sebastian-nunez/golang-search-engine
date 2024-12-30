@@ -7,6 +7,11 @@ import (
 	"github.com/sebastian-nunez/golang-search-engine/db"
 )
 
+// RunEngine starts and manages the search engine crawling process.
+// It retrieves crawl settings from the database, filters based on enabled
+// crawling and URLs per hour limit, performs crawls on retrieved URLs,
+// updates existing pages and potentially adds newly discovered external URLs
+// to the database for future crawling.
 func RunEngine() {
 	log.Info("Started search engine crawl...")
 	defer log.Info("Search engine crawl has finished.")
@@ -97,9 +102,33 @@ func RunEngine() {
 	log.Infof("Crawled through %d pages. Found a total of %d new URLs. Added %d new pages to explore into the database.", len(nextPages), len(newURLs), added)
 }
 
+// RunIndex performs the process of building and saving the search engine index.
 func RunIndex() {
 	log.Info("Started search engine indexing...")
 	defer log.Info("Search engine indexing has finished.")
 
-	// TODO: implement
+	cp := &db.CrawledPage{}
+	notIndexed, err := cp.GetNotIndexed()
+	if err != nil {
+		log.Info("Unable to get un-indexed pages from the database: %s", err)
+		return
+	}
+	log.Infof("There are %d pages which are not indexed", len(notIndexed))
+
+	// Add un-indexed pages to the current index in-memory.
+	idx := make(InvertedIndex)
+	idx.Add(notIndexed) // Large number of pages can cause memory issues here
+
+	si := &db.SearchIndex{}
+	err = si.Save(idx, notIndexed)
+	if err != nil {
+		log.Infof("Unable to save the new search index into the database: %s", err)
+		return
+	}
+
+	err = cp.SetIndexedTrue(notIndexed)
+	if err != nil {
+		log.Infof("Unable to mark the newly indexed pages as indexed in the database: %s", err)
+		return
+	}
 }
