@@ -22,7 +22,7 @@ func SetupRoutes(app *fiber.App) {
 	v1.Post("/login", handler.PostAdminLogin)
 	v1.Post("/settings", middleware.WithAuth, handler.PostSettings)
 	v1.Post("/search", handler.PostSearch)
-	app.Use("/search", cache.New(cache.Config{
+	v1.Use("/search", cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
 			return c.Query("noCache") == "true"
 		},
