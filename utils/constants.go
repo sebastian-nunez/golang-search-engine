@@ -1,6 +1,6 @@
 package utils
 
-var (
+const (
 	AdminCookie     = "admin"
 	ContentTypeHTML = "text/html"
 )
