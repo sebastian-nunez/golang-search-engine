@@ -2,6 +2,8 @@
 
 A prototype search engine with a web crawler and full text search through UI and API integrations written in Go.
 
+**Live app:** [https://gosearch.up.railway.app/](https://gosearch.up.railway.app/)
+
 ![search demo 1](./docs/images/search_demo_1.gif)
 
 ## Table of contents <!-- omit in toc -->
@@ -86,7 +88,7 @@ Allows users to search for indexed web pages which contain the query terms.
 
 ### Using the production servers
 
-TODO
+Access the production deployment of the search engine: [https://gosearch.up.railway.app/](https://gosearch.up.railway.app/)
 
 ### Running locally
 
@@ -107,7 +109,7 @@ While running the app locally, the main caveats are around seeding the initial d
 7. Create the initial crawler settings (see the `Initial crawler settings` section below).
 8. You must manually seed the initial URL(s) for the crawler to begin exploring into the database (see the `Seeding URL(s) for the crawler` section below).
 9. Run the app: `air`
-10. You can open the crawler settings dashboard: [http://localhost:3000/](http://localhost:3000/)
+10. You can open the crawler settings dashboard: [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
 11. Check out the `API reference` section
 
 #### Login credentials

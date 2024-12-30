@@ -56,7 +56,7 @@ func PostAdminLogin(c *fiber.Ctx, gdb *gorm.DB) error {
 	}
 
 	c.Cookie(&cookie)
-	c.Append("HX-Redirect", "/")
+	c.Append("HX-Redirect", "/dashboard")
 	return c.SendStatus(fiber.StatusOK)
 }
 
@@ -97,7 +97,7 @@ func PostSearch(c *fiber.Ctx, gdb *gorm.DB) error {
 		})
 	}
 
-	payload := &searchPayload{}
+	payload := searchPayload{}
 	if err := c.BodyParser(&payload); err != nil {
 		log.Info(err)
 		c.Status(fiber.StatusInternalServerError)
@@ -128,7 +128,7 @@ func PostSearch(c *fiber.Ctx, gdb *gorm.DB) error {
 	})
 }
 
-func RenderHomePage(c *fiber.Ctx, gdb *gorm.DB) error {
+func RenderDashboardPage(c *fiber.Ctx, gdb *gorm.DB) error {
 	settings := &model.CrawlerSettings{}
 	err := settings.Get(gdb)
 	if err != nil {
@@ -140,9 +140,13 @@ func RenderHomePage(c *fiber.Ctx, gdb *gorm.DB) error {
 	}
 
 	urlsPerHour := strconv.FormatUint(uint64(settings.URLsPerHour), 10)
-	return render(c, views.Home(urlsPerHour, settings.SearchOn, settings.AddNewURLs))
+	return render(c, views.Dashboard(urlsPerHour, settings.SearchOn, settings.AddNewURLs))
 }
 
 func RenderLoginPage(c *fiber.Ctx) error {
 	return render(c, views.Login())
+}
+
+func RenderSearchPage(c *fiber.Ctx) error {
+	return render(c, views.Search())
 }

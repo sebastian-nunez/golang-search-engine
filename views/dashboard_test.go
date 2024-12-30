@@ -8,10 +8,10 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func TestHomeView(t *testing.T) {
+func TestDashboardView(t *testing.T) {
 	r, w := io.Pipe()
 	go func() {
-		_ = Home("12", true, false).Render(context.Background(), w)
+		_ = Dashboard("12", true, false).Render(context.Background(), w)
 		_ = w.Close()
 	}()
 

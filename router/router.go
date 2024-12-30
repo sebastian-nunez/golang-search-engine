@@ -14,11 +14,12 @@ func SetupRoutes(gdb *gorm.DB, app *fiber.App) {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
-	app.Get("/", middleware.WithAuth, func(c *fiber.Ctx) error {
-		return handler.RenderHomePage(c, gdb)
-	})
+	app.Get("/", handler.RenderSearchPage)
 	app.Get("/login", handler.RenderLoginPage)
 	app.Post("/logout", handler.PostLogout)
+	app.Get("/dashboard", middleware.WithAuth, func(c *fiber.Ctx) error {
+		return handler.RenderDashboardPage(c, gdb)
+	})
 
 	v1.Get("/ping", handler.GetPing)
 	v1.Post("/login", func(c *fiber.Ctx) error {

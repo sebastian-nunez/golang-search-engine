@@ -15,5 +15,5 @@ type settingsPayload struct {
 }
 
 type searchPayload struct {
-	Query string `json:"query"`
+	Query string `form:"query"`
 }
