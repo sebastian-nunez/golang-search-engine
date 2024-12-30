@@ -40,10 +40,10 @@ func (cp *CrawledPage) Update(input CrawledPage) error {
 	return nil
 }
 
-// GetNextCrawlPages returns all pages which have NOT been previously been tested.
+// GetNextCrawlPages returns all pages which have NOT been previously been tested. Biased towards shorter URLs first.
 func (cp *CrawledPage) GetNextCrawlPages(limit int) ([]CrawledPage, error) {
 	var pages []CrawledPage
-	tx := DBConn.Where("last_tested IS NULL").Limit(limit).Find(&pages)
+	tx := DBConn.Where("last_tested IS NULL").Order("LENGTH(url)").Limit(limit).Find(&pages)
 	if tx.Error != nil {
 		log.Info(tx.Error)
 		return nil, tx.Error
@@ -63,7 +63,7 @@ func (cp *CrawledPage) Save() error {
 
 func (cp *CrawledPage) GetNotIndexed() ([]CrawledPage, error) {
 	var pages []CrawledPage
-	tx := DBConn.Where("indexed = ? AND last_tested IS NOT NULL", false).Find(&pages)
+	tx := DBConn.Where("indexed = false AND success = true AND last_tested IS NOT NULL").Find(&pages)
 	if tx.Error != nil {
 		log.Info(tx.Error)
 		return nil, tx.Error
