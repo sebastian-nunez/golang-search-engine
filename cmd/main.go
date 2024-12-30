@@ -33,6 +33,10 @@ func main() {
 	}))
 	app.Get("/metrics", monitor.New())
 	app.Use(limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Second,
+	}))
+	app.Use(limiter.New(limiter.Config{
 		Max:        100,
 		Expiration: 1 * time.Hour,
 	}))

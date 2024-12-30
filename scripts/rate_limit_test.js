@@ -9,8 +9,11 @@ import http from "k6/http";
 import { check, sleep } from "k6";
 
 export const options = {
-  vus: 50,
-  duration: "10s",
+  stages: [
+    { duration: "5s", target: 5 },
+    { duration: "5s", target: 10 },
+    { duration: "15s", target: 100 },
+  ],
 };
 
 export default function () {
