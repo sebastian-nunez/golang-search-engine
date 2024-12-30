@@ -92,9 +92,7 @@ func PostSearch(c *fiber.Ctx) error {
 	if len(c.Body()) == 0 {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"success": false,
-			"message": "Missing required JSON field 'term' in the request body.",
-			"data":    []db.CrawledPage{},
+			"message": "Missing required JSON field 'query' in the request body.",
 		})
 	}
 
@@ -103,23 +101,23 @@ func PostSearch(c *fiber.Ctx) error {
 		log.Info(err)
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"message": fmt.Sprintf("Unable to parse search input '%s'. Error: %s", input.Term, err),
+			"message": fmt.Sprintf("Unable to parse search query '%s'. Error: %s", input.Query, err),
 		})
 	}
 
-	if input.Term == "" {
+	if input.Query == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"message": "JSON field 'term' can not be empty",
+			"message": "JSON field 'query' can not be empty",
 		})
 	}
 
 	si := &db.SearchIndex{}
-	pages, err := si.FullTextSearch(input.Term)
+	pages, err := si.FullTextSearch(input.Query)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"message": fmt.Sprintf("Unable to run the full text search for search term '%s'. Error: %s", input.Term, err),
+			"message": fmt.Sprintf("Unable to run the full text search for search query '%s'. Error: %s", input.Query, err),
 		})
 	}
 

@@ -15,5 +15,5 @@ type settingsForm struct {
 }
 
 type searchInput struct {
-	Term string `json:"term"`
+	Query string `json:"query"`
 }
