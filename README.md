@@ -93,7 +93,7 @@ Allows users to search for indexed web pages which contain the query terms.
 
 **JSON response:**
 
-```json
+```jsonc
 {
   "results": [
     {
