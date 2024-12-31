@@ -10,8 +10,10 @@ templ Index() {
 			// TODO: DaisyUI and HTMX do not recommend using the CDN for production.
 			<link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css" rel="stylesheet" type="text/css"/>
 			<script src="https://cdn.tailwindcss.com"></script>
+			<script src="https://mozilla.github.io/nunjucks/files/nunjucks.min.js"></script>
 			<script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 			<script src="https://unpkg.com/htmx-ext-response-targets@2.0.0/response-targets.js"></script>
+			<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/client-side-templates.js"></script>
 		</head>
 		<body>
 			{ children... }

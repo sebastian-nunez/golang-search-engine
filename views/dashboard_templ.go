@@ -74,7 +74,7 @@ func Dashboard(urlsPerHour string, searchOn bool, addNewURLs bool) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("></label></div></section><button class=\"btn btn-primary w-full\" type=\"submit\">Save</button><div id=\"indicator\" class=\"htmx-indicator\"><div class=\"w-full flex justify-center items-center\"><span class=\"loading loading-spinner loading-lg text-primary\"></span></div></div><div id=\"feedback\"></div></form></div></section></main>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("></label></div></section><button class=\"btn btn-primary w-full\" type=\"submit\">Save</button><div id=\"indicator\" class=\"htmx-indicator\"><div class=\"w-full flex justify-center items-center\"><span class=\"loading loading-spinner loading-md text-primary\"></span></div></div><div id=\"feedback\"></div></form></div></section></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
