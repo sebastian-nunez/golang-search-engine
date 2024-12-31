@@ -88,6 +88,7 @@ func RunCrawler(gdb *gorm.DB) {
 		return
 	}
 
+	log.Infof("Attempting to save %d new URLs to the database...", len(newURLs))
 	added := 0
 	for url := range newURLs {
 		newPage := model.CrawledPage{URL: url}
@@ -97,6 +98,10 @@ func RunCrawler(gdb *gorm.DB) {
 			log.Infof("Unable to save new URL '%s' to the database", newPage.URL)
 		} else {
 			added += 1
+		}
+
+		if added%50 == 0 {
+			log.Infof("Saved %d / %d URLs...", added, len(newURLs))
 		}
 	}
 
