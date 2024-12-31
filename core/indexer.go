@@ -42,7 +42,6 @@ func (idx InvertedIndex) Add(pages []model.CrawledPage) {
 			log.Infof("Indexed %d / %d pages...", i+1, len(pages))
 		}
 	}
-
 }
 
 // buildDocument concatenates relevant text fields for indexing.

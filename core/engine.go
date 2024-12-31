@@ -126,6 +126,7 @@ func RunIndexer(gdb *gorm.DB) {
 	idx := make(InvertedIndex)
 	idx.Add(notIndexed) // Large number of pages can cause memory issues here
 
+	log.Infof("Attempting to save %d indexes in the database...", len(idx))
 	si := &model.SearchIndex{}
 	err = si.Save(gdb, idx, notIndexed)
 	if err != nil {
@@ -133,6 +134,7 @@ func RunIndexer(gdb *gorm.DB) {
 		return
 	}
 
+	log.Infof("Marking %d pages as indexed...", len(notIndexed))
 	err = cp.SetIndexedTrue(gdb, notIndexed)
 	if err != nil {
 		log.Infof("Unable to mark the newly indexed pages as indexed in the database: %s", err)
