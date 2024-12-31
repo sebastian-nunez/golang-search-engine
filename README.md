@@ -4,7 +4,7 @@ A prototype search engine with a web crawler and full text search through UI and
 
 **Live app:** [https://gosearch.up.railway.app/](https://gosearch.up.railway.app/)
 
-![search demo 1](./docs/images/search_demo_1.gif)
+![search ui](./docs/images/search_ui_1.png)
 
 ## Table of contents <!-- omit in toc -->
 
@@ -18,6 +18,9 @@ A prototype search engine with a web crawler and full text search through UI and
     - [Login credentials](#login-credentials)
     - [Initial crawler settings](#initial-crawler-settings)
     - [Seeding URL(s) for the crawler](#seeding-urls-for-the-crawler)
+- [Demos](#demos)
+  - [UI search](#ui-search)
+  - [API request](#api-request)
 
 ## Core features (MVP)
 
@@ -41,7 +44,7 @@ A prototype search engine with a web crawler and full text search through UI and
 
 To try out the API, I recommend downloading and using [Postman](https://www.postman.com/downloads/).
 
-- **Base URL (prod):** TODO
+- **Base URL (prod):** `https://gosearch.up.railway.app`
 - **Base URL (localhost):** `http://localhost:3000`
 
 **Note:** To get the full URL, simply concatenate the Base URL to the API endpoint targeted (e.g. `http://localhost:3000/api/v1/search`)
@@ -144,3 +147,13 @@ VALUES (uuid_generate_v4(), '<your_url>');
 ```
 
 **Quick tip:** sites like `https://news.yahoo.com/` are good initial seeds since they have A LOT of external links to other pages.
+
+## Demos
+
+### UI search
+
+![ui search demo](./docs/images/search_demo_2.gif)
+
+### API request
+
+![search demo 1](./docs/images/search_demo_1.gif)
