@@ -3,13 +3,13 @@ package views
 templ Search() {
 	@Index() {
 		<main class="min-h-screen bg-gray-100 flex justify-center p-2 md:p-6">
-			<section class="card w-full bg-white">
+			<section class="card w-full max-w-[2000px] bg-white">
 				<div
-					class="card-body w-full "
+					class="card-body w-full p-4 md:p-6"
 					hx-ext="client-side-templates"
 					nunjucks-template="resultsTemplate"
 				>
-					<div class="flex gap-8 md:flex-row">
+					<div class="flex gap-8 flex-col lg:flex-row">
 						<h1 class="font-bold text-3xl text-center pt-1">goSearch</h1>
 						<form
 							hx-post="/api/v1/search"
