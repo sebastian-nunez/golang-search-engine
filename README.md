@@ -36,8 +36,9 @@ A prototype search engine with a web crawler and full text search through UI and
 - **Database:** [PostgreSQL](https://www.postgresql.org/)
 - **ORM:** [Gorm](https://gorm.io/)
 - **Auth:** JWT tokens using Cookies
-- **UI:** [Templ](https://templ.guide/), [HTMX](https://htmx.org/), [DaisyUI](https://daisyui.com/), [TailwindCSS](https://tailwindcss.com/)
+- **UI framework:** [Templ](https://templ.guide/), [HTMX](https://htmx.org/), [DaisyUI](https://daisyui.com/), [TailwindCSS](https://tailwindcss.com/)
 - **Load testing:** [Grafana k6](https://grafana.com/docs/k6/latest/)
+- **Continuous integration (CI):** [GitHub Actions](https://docs.github.com/en/actions)
 - **Deployment:** [Docker](https://www.docker.com/), [Air](https://github.com/air-verse/air), [Railway](https://railway.com/)
 
 ## API reference

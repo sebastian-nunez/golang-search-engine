@@ -21,7 +21,7 @@ func initConfig() Config {
 	if err != nil {
 		// Causing a `panic` is making the tests fail for some reason. I should probably look into it,
 		// but it is not that important for now :)
-		log.Errorf("Unable to load .env config: %s", err)
+		log.Warnf("Unable to load .env config: %s", err)
 	}
 
 	return Config{
